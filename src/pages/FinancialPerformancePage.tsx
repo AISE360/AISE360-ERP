@@ -19,6 +19,8 @@ import {
   CheckCircle2,
   XCircle,
   FileSpreadsheet,
+  Landmark,
+  ArrowLeftRight,
 } from 'lucide-react'
 import type { Client, FinancialEntry, CompanyExpense, Invoice } from '@/types'
 import FinancialEntryModal from '@/components/finance/FinancialEntryModal'
@@ -33,6 +35,7 @@ export default function FinancialPerformancePage() {
   const [clients, setClients] = useState<Client[]>([])
   const [projects, setProjects] = useState<any[]>([])
   const [invoices, setInvoices] = useState<Invoice[]>([])
+  const [bankTxns, setBankTxns] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   // Active Tab: 'services' (Financial Entries) or 'company' (Company Expenses)
@@ -67,6 +70,7 @@ export default function FinancialPerformancePage() {
         { data: cliData },
         { data: projData },
         { data: invData },
+        { data: bankData },
       ] = await Promise.all([
         supabase
           .from('financial_entries')
@@ -79,6 +83,7 @@ export default function FinancialPerformancePage() {
         supabase.from('clients').select('*').order('company_name'),
         supabase.from('projects').select('id, name, client_id'),
         supabase.from('invoices').select('*'),
+        supabase.from('bank_transactions').select('*').order('sno'),
       ])
 
       setEntries((entData as any) ?? [])
@@ -86,6 +91,7 @@ export default function FinancialPerformancePage() {
       setClients(cliData ?? [])
       setProjects(projData ?? [])
       setInvoices(invData ?? [])
+      setBankTxns((bankData as any) ?? [])
     } catch (err) {
       console.error('Failed to load financial performance data:', err)
     } finally {
@@ -232,6 +238,22 @@ export default function FinancialPerformancePage() {
   const grossProfit = totalCharged - totalServiceExpenses
   const netProfit = grossProfit - totalCompanyExp
   const cashInHand = totalAdvance - totalExpenses
+
+  // ── Bank ↔ Books reconciliation (live) ──
+  // Axis closing and Book in-hand are DIFFERENT numbers by design:
+  // books include pre-bank-account work; the bank includes capital &
+  // personal flows. The bridge below must sum to the difference.
+  const BANK_ONLY_CATS = ['capital', 'owner_transfer', 'personal', 'unclassified']
+  const bankClosing = bankTxns.length ? Number(bankTxns[bankTxns.length - 1].balance) : null
+  const preAdv = entries.filter(e => e.entry_date < '2026-03-12').reduce((s, e) => s + Number(e.advance_amount), 0)
+  const preExp = entries.filter(e => e.entry_date < '2026-03-12').reduce((s, e) => s + Number(e.expense_amount), 0)
+  const preCo = companyExpenses.filter(ce => ce.expense_date < '2026-03-12').reduce((s, ce) => s + Number(ce.amount), 0)
+  const preBankNet = preAdv - preExp - preCo
+  const bankOnly = bankTxns
+    .filter(t => BANK_ONLY_CATS.includes(t.category))
+    .reduce((s, t) => s + (t.dr_cr === 'CR' ? 1 : -1) * Number(t.amount), 0)
+  const reconDiff = bankClosing != null ? bankClosing - cashInHand : null
+  const reconDeltas = reconDiff != null ? reconDiff + preBankNet - bankOnly : null
 
   // Unique service names for filter
   const uniqueServices = useMemo(() => {
@@ -505,6 +527,58 @@ export default function FinancialPerformancePage() {
           </p>
         </div>
       </div>
+
+      {/* ───────────────────────────────────────── */}
+      {/* BANK ↔ BOOKS RECONCILIATION */}
+      {/* ───────────────────────────────────────── */}
+      {bankTxns.length > 0 && reconDiff != null && (
+        <div className="card p-4 border-brand-200 bg-gradient-to-r from-white to-brand-50/30">
+          <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-md bg-brand-600 text-white flex items-center justify-center">
+                <ArrowLeftRight className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-gray-900 text-sm">Bank ↔ Books Reconciliation</h2>
+                <p className="text-[11px] text-gray-500">Why Axis balance and book in-hand differ — live computed, must sum to zero</p>
+              </div>
+            </div>
+            <a href="/reconciliation" className="text-xs text-brand-600 hover:underline font-medium flex items-center gap-1">
+              <Landmark className="w-3.5 h-3.5" /> Open Bank Statement →
+            </a>
+          </div>
+          <div className="grid grid-cols-3 gap-3 text-center mb-3">
+            <div className="bg-white rounded-lg border border-gray-200 p-2.5">
+              <p className="text-[10px] text-gray-500 uppercase">Axis Closing</p>
+              <p className="text-base font-bold text-gray-900 font-mono">{formatCurrency(bankClosing!)}</p>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-200 p-2.5">
+              <p className="text-[10px] text-gray-500 uppercase">Book In-Hand</p>
+              <p className="text-base font-bold text-brand-700 font-mono">{formatCurrency(cashInHand)}</p>
+            </div>
+            <div className={`rounded-lg border p-2.5 ${Math.abs(reconDeltas ?? 0) < 100 ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+              <p className="text-[10px] text-gray-500 uppercase">Difference</p>
+              <p className={`text-base font-bold font-mono ${reconDiff >= 0 ? 'text-gray-900' : 'text-red-600'}`}>
+                {reconDiff >= 0 ? '+' : ''}{formatCurrency(reconDiff)}
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+            <div className="bg-white rounded-lg border border-gray-100 px-3 py-2 flex items-center justify-between">
+              <span className="text-gray-500">Pre-bank net <span className="text-gray-400">(in books, before Axis)</span></span>
+              <span className="font-mono font-semibold text-gray-800">{preBankNet >= 0 ? '+' : ''}{formatCurrency(preBankNet)}</span>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-100 px-3 py-2 flex items-center justify-between">
+              <span className="text-gray-500">Bank-only flows <span className="text-gray-400">(capital, personal)</span></span>
+              <span className="font-mono font-semibold text-gray-800">{bankOnly >= 0 ? '+' : ''}{formatCurrency(bankOnly)}</span>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-100 px-3 py-2 flex items-center justify-between">
+              <span className="text-gray-500">Matched deltas <span className="text-gray-400">(paise)</span></span>
+              <span className="font-mono font-semibold text-gray-800">{(reconDeltas ?? 0) >= 0 ? '+' : ''}{formatCurrency(reconDeltas ?? 0)}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ───────────────────────────────────────── */}
       {/* TABS: Financial Entries vs Company Expenses */}

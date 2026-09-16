@@ -89,7 +89,7 @@ VALUES
   (50, DATE '2026-09-04', 'UPI/P2A/661376307791/UNITED CHAMBER OF COM/Cosmos', 450.00, 'DR', 42439.76, 'company_expense', NULL, 'CE-07', 'United Chamber business meet'),
   (51, DATE '2026-09-04', 'UPI/P2A/661306119487/Mr FAROOQUE MANJUR SH/BOM', 10000.00, 'DR', 32439.76, 'service_expense', 'PEES Tee group', 'FE-14', '10k to Farooquee bhai (subcontract)'),
   (52, DATE '2026-09-09', 'UPI/P2A/625292564611/Mr FAROOQUE MANJUR SH/BOM', 2000.00, 'DR', 30439.76, 'unclassified', NULL, NULL, 'Farooque 2000: confirm purpose'),
-  (53, DATE '2026-09-11', 'UPI/P2A/625418037763/DADA B BHAPKAR/SARASWAT BANK', 3600.00, 'DR', 26839.76, 'unclassified', NULL, NULL, 'Dada Bhapkar 3600: confirm business expense?')
+  (53, DATE '2026-09-11', 'UPI/P2A/625418037763/DADA B BHAPKAR/SARASWAT BANK', 3600.00, 'DR', 26839.76, 'company_expense', NULL, 'CE-08', 'Confirmed legit business expense (Dada Bhapkar)')
 ON CONFLICT (sno) DO UPDATE SET txn_date = EXCLUDED.txn_date, particulars = EXCLUDED.particulars, amount = EXCLUDED.amount, dr_cr = EXCLUDED.dr_cr, balance = EXCLUDED.balance, category = EXCLUDED.category, linked_client = EXCLUDED.linked_client, sheet_ref = EXCLUDED.sheet_ref, notes = EXCLUDED.notes;
 
 -- Verification (matches printed statement):

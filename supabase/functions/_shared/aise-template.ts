@@ -15,17 +15,20 @@ export interface RenewalItem {
 export interface PromoService {
   title: string
   desc: string
-  icon: string
 }
 
 export const AISE_SERVICES: PromoService[] = [
-  { title: 'Website Development', desc: 'Modern, fast websites that turn visitors into customers.', icon: '🌐' },
-  { title: 'Domain & Renewals', desc: 'Registration, transfer & on-time renewals — handled for you.', icon: '🔗' },
-  { title: 'Business Email', desc: 'Professional mailboxes on your own domain. Stay connected.', icon: '✉️' },
-  { title: 'Hosting & Maintenance', desc: 'Secure hosting, updates & backups. Always online.', icon: '🛡️' },
-  { title: 'Admin Panels & Web Apps', desc: 'Custom dashboards & tools built for your business.', icon: '🧩' },
-  { title: 'SEO & Growth Marketing', desc: 'Get found on Google and grow faster.', icon: '📈' },
+  { title: 'Web Development', desc: 'Fast, modern websites & web apps your customers love.' },
+  { title: 'Mobile Development', desc: 'Android & iOS apps built for performance and scale.' },
+  { title: 'Cybersecurity', desc: 'Audits, protection & monitoring that keep you safe online.' },
+  { title: 'Digital Marketing', desc: 'Campaigns that get you seen, clicked and remembered.' },
+  { title: 'Cloud Solutions', desc: 'Hosting, deployment & infrastructure that never sleeps.' },
+  { title: 'IT Consulting', desc: 'The right tech guidance for your business decisions.' },
+  { title: 'SEO Optimization', desc: 'Rank higher on Google and get found first.' },
+  { title: 'AI Automation', desc: 'Smart automation & AI tools that save hours daily.' },
 ]
+
+export const AISE_LOGO_URL = 'https://i.ibb.co/ym62dJW4/aissms-logo.png'
 
 export function escapeHtml(s: string): string {
   return (s ?? '')
@@ -70,8 +73,15 @@ function header(sentDate: string): string {
   <div style="background:#0b1020;padding:36px 36px 30px;">
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>
       <td>
-        <div style="color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.5px;">AISE 360</div>
-        <div style="color:#93a4c4;font-size:13px;margin-top:2px;">Digital Agency &amp; Web Solutions</div>
+        <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>
+          <td style="vertical-align:middle;">
+            <img src="${AISE_LOGO_URL}" alt="AISE 360" height="48" style="display:block;height:48px;width:auto;border:0;">
+          </td>
+          <td style="vertical-align:middle;padding-left:14px;">
+            <div style="color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.5px;">AISE 360</div>
+            <div style="color:#93a4c4;font-size:13px;margin-top:2px;">Digital Agency &amp; Web Solutions</div>
+          </td>
+        </tr></table>
       </td>
       <td align="right" style="color:#8b93a7;font-size:10px;letter-spacing:2px;line-height:1.8;">
         IDEAS &nbsp;|&nbsp; WEBSITES &nbsp;|&nbsp; GROWTH<br>ALL IN ONE PLACE
@@ -229,9 +239,6 @@ export function buildPromoEmail(opts: {
   const grid = services.map((s) => `
     <tr>
       <td style="padding:13px 20px;border-bottom:1px solid #eef2f7;">
-        <span style="font-size:18px;">${s.icon}</span>
-      </td>
-      <td style="padding:13px 8px 13px 0;border-bottom:1px solid #eef2f7;">
         <div style="font-weight:700;color:#111827;font-size:14px;">${escapeHtml(s.title)}</div>
         <div style="color:#6b7280;font-size:12px;margin-top:2px;line-height:1.5;">${escapeHtml(s.desc)}</div>
       </td>
@@ -253,7 +260,8 @@ ${header(sentDate)}
   </div>
   <div style="background:#eaf1fe;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:26px;">
     <div style="color:#1e3a8a;font-size:13px;line-height:1.6;">
-      One team for <strong>ideas, websites &amp; growth</strong> — build, secure &amp; scale, all in one place.
+      <strong>AISE 360 — built for the next generation.</strong><br>
+      Websites, apps, security, marketing &amp; growth — build, secure &amp; scale, all in one place.
       Reply to this mail or call us, and we'll take it from there.
     </div>
   </div>
@@ -277,7 +285,7 @@ ${opts.message}
 What AISE 360 does for you:
 ${services.map((s) => `- ${s.title}: ${s.desc}`).join('\n')}
 
-One team for ideas, websites & growth — build, secure & scale, all in one place.
+One team for ideas, websites & growth — AISE 360, built for the next generation.
 ${ctaText}: contact@aise360.com
 Need help? Zaid Shaikh +91 82371 43559 | Farooque Shaikh +91 70834 71542
 

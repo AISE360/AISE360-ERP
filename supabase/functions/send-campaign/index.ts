@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
       headline?: string
       message?: string
       cta_text?: string
-      services?: { title: string; desc: string; icon: string }[]
+      services?: { title: string; desc: string }[]
       mode?: 'promo' | 'renewal'
       items?: RenewalItem[]
       recipients: { name: string; email: string; company?: string }[]

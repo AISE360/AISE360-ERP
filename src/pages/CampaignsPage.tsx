@@ -42,15 +42,21 @@ function esc(s: string): string {
 // Client-side preview mirroring the server template (promo mode)
 function previewHtml(opts: { name: string; headline: string; message: string; cta: string; services: typeof AISE_SERVICES }): string {
   const rows = opts.services.map((s) => `
-    <tr><td style="padding:12px 18px;border-bottom:1px solid #eef2f7;font-size:18px;">${s.icon}</td>
-    <td style="padding:12px 8px 12px 0;border-bottom:1px solid #eef2f7;">
+    <tr><td style="padding:12px 18px;border-bottom:1px solid #eef2f7;">
       <div style="font-weight:700;color:#111827;font-size:14px;">${esc(s.title)}</div>
       <div style="color:#6b7280;font-size:12px;">${esc(s.desc)}</div></td></tr>`).join('')
   return `<!DOCTYPE html><html><body style="margin:0;background:#111623;font-family:Arial,sans-serif;">
   <div style="max-width:600px;margin:0 auto;background:#fff;">
     <div style="background:#0b1020;padding:28px;color:#fff;">
-      <div style="font-size:22px;font-weight:800;">AISE 360</div>
-      <div style="color:#93a4c4;font-size:12px;">Digital Agency & Web Solutions</div>
+      <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>
+        <td style="vertical-align:middle;">
+          <img src="https://i.ibb.co/ym62dJW4/aissms-logo.png" alt="AISE 360" height="44" style="display:block;height:44px;width:auto;border:0;">
+        </td>
+        <td style="vertical-align:middle;padding-left:12px;">
+          <div style="font-size:22px;font-weight:800;">AISE 360</div>
+          <div style="color:#93a4c4;font-size:12px;">Digital Agency & Web Solutions</div>
+        </td>
+      </tr></table>
       <div style="text-align:right;margin-top:18px;font-size:22px;font-weight:800;">Your Digital<br>Partner Always On.</div>
     </div>
     <div style="padding:28px;">
@@ -77,11 +83,13 @@ function previewHtml(opts: { name: string; headline: string; message: string; ct
   </div></body></html>`
 }
 
-const DEFAULT_SUBJECT = 'AISE 360 — Websites, Domains, Business Email & More'
-const DEFAULT_HEADLINE = 'Everything your business needs to grow online.'
-const DEFAULT_MESSAGE = `We help businesses build, secure & scale online — websites, domains, business email, hosting and maintenance, all in one place.
+const DEFAULT_SUBJECT = 'AISE 360 — Built for the Next Generation | Great connecting at BNI'
+const DEFAULT_HEADLINE = 'Is your brand ready for the new generation?'
+const DEFAULT_MESSAGE = `Gen-Z expects more than just a website. They want experiences that are fast, modern, relatable, and worth remembering.
 
-If you ever need a new website, a domain renewal, professional email on your own domain, or someone reliable to maintain it all — just reply to this mail and we'll take it from there.`
+We understand what today's audience looks for — and we turn that understanding into digital experiences that connect. From web & mobile development to cybersecurity, cloud, marketing, SEO and AI automation — everything your brand needs, all in one place.
+
+Great connecting at the BNI meet! If you ever need a digital partner for your next project, just reply to this mail and we'll take it from there.`
 
 export default function CampaignsPage() {
   const { user } = useAuthStore()
@@ -89,6 +97,7 @@ export default function CampaignsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [search, setSearch] = useState('')
   const [sourceTab, setSourceTab] = useState<'all' | 'Clients' | 'Networking' | 'Leads'>('all')
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const [subject, setSubject] = useState(DEFAULT_SUBJECT)
@@ -153,10 +162,11 @@ export default function CampaignsPage() {
     const q = search.toLowerCase().trim()
     return audience.filter((m) => {
       if (sourceTab !== 'all' && m.source !== sourceTab) return false
+      if (showSelectedOnly && !selected.has(m.key)) return false
       if (!q) return true
       return m.name.toLowerCase().includes(q) || m.company.toLowerCase().includes(q) || m.email.includes(q)
     })
-  }, [audience, search, sourceTab])
+  }, [audience, search, sourceTab, showSelectedOnly, selected])
 
   const uniqueSelected = useMemo(() => {
     const emails = new Set<string>()
@@ -396,7 +406,7 @@ export default function CampaignsPage() {
                 {AISE_SERVICES.map((s) => (
                   <label key={s.title} className={`flex items-start gap-2 text-xs p-2 rounded-lg border cursor-pointer transition-colors ${servicesOn.has(s.title) ? 'border-brand-300 bg-brand-50/50' : 'border-gray-200 opacity-60'}`}>
                     <input type="checkbox" checked={servicesOn.has(s.title)} onChange={() => toggleService(s.title)} className="mt-0.5 accent-brand-600" />
-                    <span><span className="mr-1">{s.icon}</span><strong>{s.title}</strong><br /><span className="text-gray-500">{s.desc}</span></span>
+                    <span><strong>{s.title}</strong><br /><span className="text-gray-500">{s.desc}</span></span>
                   </label>
                 ))}
               </div>
@@ -406,13 +416,21 @@ export default function CampaignsPage() {
           <div className="card p-5 space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <h2 className="font-semibold text-gray-900 text-sm flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-brand-600" /> Audience ({filtered.length} shown)
+                <Users className="w-4 h-4 text-brand-600" /> Audience ({uniqueSelected} selected)
               </h2>
-              <div className="flex gap-1.5">
-                <button onClick={() => selectGroup('all', true)} className="text-[11px] text-brand-600 hover:underline font-medium">Select all</button>
-                <span className="text-gray-300">|</span>
-                <button onClick={() => selectGroup('all', false)} className="text-[11px] text-gray-500 hover:underline">Clear</button>
-              </div>
+              <label className="flex items-center gap-1.5 text-[11px] text-gray-500 cursor-pointer">
+                <input type="checkbox" checked={showSelectedOnly} onChange={(e) => setShowSelectedOnly(e.target.checked)} className="accent-brand-600" />
+                Show selected only
+              </label>
+            </div>
+            {/* One-click select bar */}
+            <div className="flex gap-2">
+              <button onClick={() => selectGroup('all', true)} className="flex-1 btn-primary !py-2.5 text-sm flex items-center justify-center gap-2">
+                <CheckCircle2 className="w-4 h-4" /> Select All ({audience.length})
+              </button>
+              <button onClick={() => selectGroup('all', false)} className="btn-secondary !py-2.5 text-sm">
+                Clear
+              </button>
             </div>
             <div className="flex gap-1.5 flex-wrap">
               {(['all', 'Clients', 'Networking', 'Leads'] as const).map((t) => (
@@ -420,30 +438,47 @@ export default function CampaignsPage() {
                   {t === 'all' ? `All (${audience.length})` : `${t} (${counts[t as keyof typeof counts]})`}
                 </button>
               ))}
-              <input className="input !w-auto flex-1 min-w-[140px] text-xs ml-auto" placeholder="Search audience..." value={search} onChange={(e) => setSearch(e.target.value)} />
+              <input className="input !w-auto flex-1 min-w-[140px] text-xs ml-auto" placeholder="Filter by name, company, email..." value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             {(sourceTab === 'all' ? (['Clients', 'Networking', 'Leads'] as const) : [sourceTab]).map((group) => {
               const rows = filtered.filter((m) => m.source === group)
               if (rows.length === 0) return null
-              const allOn = rows.every((m) => selected.has(m.key))
+              const groupTotal = audience.filter((m) => m.source === group).length
+              const groupOn = audience.filter((m) => m.source === group).every((m) => selected.has(m.key))
               return (
                 <div key={group}>
-                  <div className="flex items-center justify-between mt-1 mb-1">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{group} ({rows.length})</p>
-                    <button onClick={() => selectGroup(group, !allOn)} className="text-[11px] text-brand-600 hover:underline font-medium">
-                      {allOn ? 'Deselect group' : 'Select group'}
+                  <div className="flex items-center justify-between mt-1 mb-1.5">
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">
+                      {group} ({rows.length}{rows.length !== groupTotal ? ` of ${groupTotal}` : ''})
+                    </p>
+                    <button onClick={() => selectGroup(group, !groupOn)} className="text-[11px] text-brand-600 hover:underline font-medium">
+                      {groupOn ? 'Deselect group' : `Select all ${group}`}
                     </button>
                   </div>
-                  <div className="border border-gray-200 rounded-lg divide-y divide-gray-100 max-h-56 overflow-y-auto">
-                    {rows.map((m) => (
-                      <label key={m.key} className="flex items-center gap-2.5 px-3 py-2 hover:bg-gray-50 cursor-pointer">
-                        <input type="checkbox" checked={selected.has(m.key)} onChange={() => toggle(m.key)} className="accent-brand-600" />
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold text-gray-900 truncate">{m.name} <span className="font-normal text-gray-500">· {m.company}</span></p>
-                          <p className="text-[11px] text-gray-400 truncate">{m.email}</p>
-                        </div>
-                      </label>
-                    ))}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-0.5">
+                    {rows.map((m) => {
+                      const on = selected.has(m.key)
+                      const initials = m.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
+                      return (
+                        <button
+                          key={m.key}
+                          onClick={() => toggle(m.key)}
+                          className={`flex items-center gap-2.5 p-2.5 rounded-xl border-2 text-left transition-all ${on ? 'border-brand-500 bg-brand-50/60 shadow-sm' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                        >
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-[11px] shrink-0 ${on ? 'bg-brand-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                            {initials}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-gray-900 truncate">{m.name}</p>
+                            <p className="text-[11px] text-gray-500 truncate">{m.company}</p>
+                            <p className="text-[11px] text-gray-400 truncate">{m.email}</p>
+                          </div>
+                          {on
+                            ? <CheckCircle2 className="w-5 h-5 text-brand-600 shrink-0" />
+                            : <div className="w-5 h-5 rounded-full border-2 border-gray-300 shrink-0" />}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               )

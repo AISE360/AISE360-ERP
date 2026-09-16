@@ -26,6 +26,8 @@ import FollowUpsPage from '@/pages/FollowUpsPage'
 import CRMPage from '@/pages/CRMPage'
 import NetworkingPage from '@/pages/NetworkingPage'
 import BNIPage from '@/pages/BNIPage'
+import CampaignsPage from '@/pages/CampaignsPage'
+import ReconciliationPage from '@/pages/ReconciliationPage'
 import TeamPage from '@/pages/TeamPage'
 import FinancialPerformancePage from '@/pages/FinancialPerformancePage'
 import IdeasPage from '@/pages/IdeasPage'
@@ -131,6 +133,8 @@ export default function App() {
           <Route path="crm" element={<CRMPage />} />
           <Route path="networking" element={<NetworkingPage />} />
           <Route path="bni" element={<BNIPage />} />
+          <Route path="campaigns" element={<CampaignsPage />} />
+          <Route path="reconciliation" element={<ReconciliationPage />} />
           <Route path="team" element={<TeamPage />} />
           <Route path="ideas" element={<IdeasPage />} />
           <Route path="credentials" element={<CredentialsPage />} />

@@ -132,7 +132,7 @@ export default function FollowUpsPage() {
               <label className="label">Project</label>
               <select className="input" value={form.project_id} onChange={e => setForm({ ...form, project_id: e.target.value })}>
                 <option value="">No project</option>
-                {projects.map(p => <option key={p.id} value={p.id}>{(p as any).title || p.name}</option>)}
+                {projects.map(p => <option key={p.id} value={p.id}>{p.name || (p as any).title}</option>)}
               </select>
             </div>
             <div>
@@ -175,7 +175,7 @@ export default function FollowUpsPage() {
                 </div>
                 <div className="flex gap-4 mt-1 text-xs text-gray-500 flex-wrap">
                   <span>📅 {formatDate(fu.due_date)}</span>
-                  {(fu as any).project && <span>📁 {(fu as any).project.title || (fu as any).project.name}</span>}
+                  {(fu as any).project && <span>📁 {(fu as any).project.name || (fu as any).project.title}</span>}
                   {(fu as any).assigned_user && <span>👤 {(fu as any).assigned_user.full_name}</span>}
                 </div>
                 {fu.description && <p className="text-xs text-gray-500 mt-1">{fu.description}</p>}

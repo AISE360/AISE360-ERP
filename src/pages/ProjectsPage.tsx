@@ -27,7 +27,8 @@ export default function ProjectsPage() {
   useEffect(() => { load() }, [])
 
   const filtered = projects.filter(p => {
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase())
+    const pName = p.name ?? (p as any).title ?? ''
+    const matchSearch = pName.toLowerCase().includes(search.toLowerCase())
     const matchStatus = statusFilter === 'all' || p.status === statusFilter
     return matchSearch && matchStatus
   })
@@ -76,7 +77,7 @@ export default function ProjectsPage() {
                       <FolderKanban className="w-4 h-4 text-brand-600" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 text-sm leading-tight">{project.name}</h3>
+                      <h3 className="font-semibold text-gray-900 text-sm leading-tight">{project.name ?? (project as any).title}</h3>
                       {project.client && (
                         <p className="text-xs text-gray-500">{(project.client as Client).company_name}</p>
                       )}

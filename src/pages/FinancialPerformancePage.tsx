@@ -70,14 +70,14 @@ export default function FinancialPerformancePage() {
       ] = await Promise.all([
         supabase
           .from('financial_entries')
-          .select('*, client:clients(id, company_name, contact_person), project:projects(id, name, title)')
+          .select('*, client:clients(id, company_name, contact_person), project:projects(id, name)')
           .order('entry_date', { ascending: false }),
         supabase
           .from('company_expenses')
           .select('*')
           .order('expense_date', { ascending: false }),
         supabase.from('clients').select('*').order('company_name'),
-        supabase.from('projects').select('id, name, title, client_id'),
+        supabase.from('projects').select('id, name, client_id'),
         supabase.from('invoices').select('*'),
       ])
 
@@ -143,7 +143,7 @@ export default function FinancialPerformancePage() {
     return entries.filter(e => {
       // Search: client, service, project, remarks
       const clientName = e.client?.company_name?.toLowerCase() || ''
-      const projName = ((e.project as any)?.title || e.project?.name || '').toLowerCase()
+      const projName = (e.project?.name || (e.project as any)?.title || '').toLowerCase()
       const srvName = e.service_name.toLowerCase()
       const rem = (e.remarks || '').toLowerCase()
       const searchMatch =
@@ -274,7 +274,7 @@ export default function FinancialPerformancePage() {
       const rows = sortedEntries.map(e => [
         e.entry_date,
         `"${e.client?.company_name || ''}"`,
-        `"${(e.project as any)?.title || e.project?.name || ''}"`,
+        `"${e.project?.name || (e.project as any)?.title || ''}"`,
         `"${e.service_name}"`,
         e.expense_amount,
         e.charged_amount,
@@ -703,9 +703,9 @@ export default function FinancialPerformancePage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto max-h-[65vh] overflow-y-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase tracking-wider font-semibold">
+              <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase tracking-wider font-semibold sticky top-0 z-10 shadow-sm">
                 <tr>
                   <th className="px-3.5 py-3 text-center w-12">#</th>
                   <th className="px-3.5 py-3">Date</th>
@@ -747,18 +747,23 @@ export default function FinancialPerformancePage() {
                     const isFullyPaid = balance === 0
 
                     return (
-                      <tr key={entry.id} className="hover:bg-gray-50/70 transition-colors">
+                      <tr key={entry.id} className="hover:bg-brand-50/50 even:bg-gray-50/60 transition-colors">
                         <td className="px-3.5 py-3 text-center text-gray-400 font-mono">
                           {index + 1}
                         </td>
                         <td className="px-3.5 py-3 whitespace-nowrap text-gray-600">
                           {formatDate(entry.entry_date)}
+                          {entry.entry_date < '2026-03-12' && (
+                            <span className="ml-1.5 badge bg-slate-200 text-slate-600 text-[10px] py-0" title="Work done & paid before the Axis account was opened">
+                              Pre-bank
+                            </span>
+                          )}
                         </td>
                         <td className="px-3.5 py-3 font-medium text-gray-900 whitespace-nowrap">
                           {entry.client?.company_name || '—'}
                         </td>
                         <td className="px-3.5 py-3 text-gray-500 whitespace-nowrap">
-                          {(entry.project as any)?.title || entry.project?.name || (
+                          {entry.project?.name || (entry.project as any)?.title || (
                             <span className="text-gray-300 italic">General</span>
                           )}
                         </td>
@@ -879,9 +884,9 @@ export default function FinancialPerformancePage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto max-h-[65vh] overflow-y-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase tracking-wider font-semibold">
+              <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase tracking-wider font-semibold sticky top-0 z-10 shadow-sm">
                 <tr>
                   <th className="px-4 py-3 text-center w-12">#</th>
                   <th className="px-4 py-3">Date</th>
@@ -913,7 +918,7 @@ export default function FinancialPerformancePage() {
                   </tr>
                 ) : (
                   filteredCompanyExpenses.map((ce, index) => (
-                    <tr key={ce.id} className="hover:bg-gray-50/70 transition-colors">
+                    <tr key={ce.id} className="hover:bg-brand-50/50 even:bg-gray-50/60 transition-colors">
                       <td className="px-4 py-3 text-center text-gray-400 font-mono">
                         {index + 1}
                       </td>

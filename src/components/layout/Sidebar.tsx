@@ -18,6 +18,8 @@ import {
   Lightbulb,
   KeyRound,
   Network,
+  Megaphone,
+  Landmark,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -48,6 +50,7 @@ const navSections: NavSection[] = [
     title: 'FINANCIALS',
     items: [
       { label: 'Performance', to: '/financial-performance', icon: LineChart, badge: 'New' },
+      { label: 'Bank Statement', to: '/reconciliation', icon: Landmark },
       { label: 'Finance Overview', to: '/finance', icon: DollarSign },
       { label: 'Expenses', to: '/expenses', icon: Receipt },
       { label: 'Invoices', to: '/invoices', icon: FileText },
@@ -57,6 +60,7 @@ const navSections: NavSection[] = [
     title: 'GROWTH & TEAM',
     items: [
       { label: 'Networking', to: '/networking', icon: Network, badge: 'New' },
+      { label: 'Campaigns', to: '/campaigns', icon: Megaphone, badge: 'New' },
       { label: 'Follow-Ups', to: '/follow-ups', icon: Bell },
       { label: 'CRM Leads', to: '/crm', icon: TrendingUp },
       { label: 'Team', to: '/team', icon: UserCheck },

@@ -73,7 +73,7 @@ export default function DashboardPage() {
   const revenueData = projects
     .filter(p => p.status === 'completed')
     .slice(0, 6)
-    .map(p => ({ name: p.name.slice(0, 10), budget: p.budget, received: p.upfront_received }))
+    .map(p => ({ name: (p.name ?? (p as any).title ?? '').slice(0, 10), budget: p.budget, received: p.upfront_received }))
 
   const loggedFounderIds = new Set(todayLogs.map(l => l.founder_id))
 
@@ -197,7 +197,7 @@ export default function DashboardPage() {
               <Link key={project.id} to={`/projects/${project.id}`} className="block">
                 <div className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-900 truncate">{project.name}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{project.name ?? (project as any).title}</p>
                     <p className="text-xs text-gray-500">
                       {project.deadline ? `Due ${formatDate(project.deadline)}` : 'No deadline'}
                     </p>

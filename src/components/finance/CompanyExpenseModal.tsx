@@ -10,6 +10,7 @@ const CATEGORIES: CompanyExpenseCategory[] = [
   'Business Meeting',
   'Return Filing',
   'CA Charges',
+  'Bank Charges',
   'Food/Travel',
   'Software',
   'Office',

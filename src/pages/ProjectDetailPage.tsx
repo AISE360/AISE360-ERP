@@ -59,7 +59,7 @@ export default function ProjectDetailPage() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{project.name ?? (project as any).title}</h1>
           {(project.client as Client)?.company_name && (
             <p className="text-gray-500 text-sm">{(project.client as Client).company_name}</p>
           )}
@@ -243,7 +243,7 @@ export default function ProjectDetailPage() {
       {showFinancialModal && (
         <FinancialEntryModal
           clients={clients}
-          projects={project ? [{ id: project.id, name: project.name, client_id: project.client_id }] : []}
+          projects={project ? [{ id: project.id, name: project.name ?? (project as any).title, client_id: project.client_id }] : []}
           initialClientId={project?.client_id}
           initialProjectId={project?.id}
           onClose={() => setShowFinancialModal(false)}

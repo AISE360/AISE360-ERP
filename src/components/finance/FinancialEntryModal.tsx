@@ -65,7 +65,7 @@ export default function FinancialEntryModal({
     const selectedClient = clients.find(c => c.id === clientId)
     if (!selectedClient) return true
     const cName = selectedClient.company_name.toLowerCase()
-    const pName = ((p as any).title || p.name || '').toLowerCase()
+    const pName = (p.name || (p as any).title || '').toLowerCase()
     return pName.includes(cName)
   })
 
@@ -214,7 +214,7 @@ export default function FinancialEntryModal({
               <option value="">No Project / General Client Service</option>
               {clientProjects.map(p => (
                 <option key={p.id} value={p.id}>
-                  {(p as any).title || p.name || 'Untitled Project'}
+                  {p.name || (p as any).title || 'Untitled Project'}
                 </option>
               ))}
             </select>

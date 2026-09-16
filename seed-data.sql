@@ -47,6 +47,12 @@ ON CONFLICT (id) DO UPDATE
   SET title       = EXCLUDED.title,
       description = EXCLUDED.description;
 
+-- Keep display name in sync (the app reads projects.name; older DBs only had title)
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS name text;
+UPDATE projects
+SET name = COALESCE(NULLIF(title, ''), 'Untitled Project')
+WHERE name IS NULL;
+
 
 -- ─────────────────────────────────────────
 -- STEP 3: EXPENSES

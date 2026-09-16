@@ -191,6 +191,7 @@ export type CompanyExpenseCategory =
   | 'Business Meeting'
   | 'Return Filing'
   | 'CA Charges'
+  | 'Bank Charges'
   | 'Food/Travel'
   | 'Software'
   | 'Office'
@@ -281,5 +282,31 @@ export interface BNIContactRow {
   created_by?: string | null
   created_at: string
   updated_at: string
+}
+
+export interface Campaign {
+  id: string
+  name: string
+  subject: string
+  headline?: string | null
+  message?: string | null
+  cta_text?: string | null
+  mode: string
+  audience_count: number
+  sent_count: number
+  failed_count: number
+  created_by?: string | null
+  created_at: string
+}
+
+export interface CampaignRecipient {
+  id: string
+  campaign_id: string
+  name?: string | null
+  email: string
+  company?: string | null
+  status: 'sent' | 'failed' | 'skipped'
+  error?: string | null
+  sent_at: string
 }
 

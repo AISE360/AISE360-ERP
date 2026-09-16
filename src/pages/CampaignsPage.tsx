@@ -50,7 +50,7 @@ function previewHtml(opts: { name: string; headline: string; message: string; ct
     <div style="background:#0b1020;padding:28px;color:#fff;">
       <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>
         <td style="vertical-align:middle;">
-          <img src="https://aise360-pvt-ltd.netlify.app/whitelogo.png" alt="AISE 360" height="44" style="display:block;height:44px;width:auto;border:0;">
+          <img src="${window.location.origin}/whitelogo.png" alt="AISE 360" height="44" style="display:block;height:44px;width:auto;border:0;">
         </td>
         <td style="vertical-align:middle;padding-left:12px;">
           <div style="font-size:22px;font-weight:800;">AISE 360</div>

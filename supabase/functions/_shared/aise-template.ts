@@ -28,7 +28,7 @@ export const AISE_SERVICES: PromoService[] = [
   { title: 'AI Automation', desc: 'Smart automation & AI tools that save hours daily.' },
 ]
 
-export const AISE_LOGO_URL = 'https://i.ibb.co/ym62dJW4/aissms-logo.png'
+export const AISE_LOGO_URL = 'https://aise360-pvt-ltd.netlify.app/whitelogo.png'
 
 export function escapeHtml(s: string): string {
   return (s ?? '')

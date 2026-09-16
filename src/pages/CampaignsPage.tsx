@@ -106,6 +106,13 @@ export default function CampaignsPage() {
   const [cta, setCta] = useState('Get a Free Quote')
   const [servicesOn, setServicesOn] = useState<Set<string>>(new Set(AISE_SERVICES.map((s) => s.title)))
   const [showPreview, setShowPreview] = useState(true)
+  const [composeMode, setComposeMode] = useState<'builder' | 'code'>('builder')
+  const [customHtml, setCustomHtml] = useState('')
+  const [customServices, setCustomServices] = useState<{ title: string; desc: string }[]>(() => {
+    try { return JSON.parse(localStorage.getItem('campaign-custom-services') ?? '[]') } catch { return [] }
+  })
+  const [newSvcTitle, setNewSvcTitle] = useState('')
+  const [newSvcDesc, setNewSvcDesc] = useState('')
 
   const [sending, setSending] = useState(false)
   const [testing, setTesting] = useState(false)
@@ -152,6 +159,15 @@ export default function CampaignsPage() {
     }
     load()
   }, [])
+
+  const allServices = useMemo(
+    () => [...AISE_SERVICES.map((s) => ({ ...s, custom: false })), ...customServices.map((s) => ({ ...s, custom: true }))],
+    [customServices],
+  )
+
+  useEffect(() => {
+    try { localStorage.setItem('campaign-custom-services', JSON.stringify(customServices)) } catch { /* ignore */ }
+  }, [customServices])
 
   const showToast = (msg: string) => {
     setToast(msg)
@@ -205,7 +221,36 @@ export default function CampaignsPage() {
     })
   }
 
-  const selectedServices = useMemo(() => AISE_SERVICES.filter((s) => servicesOn.has(s.title)), [servicesOn])
+  const selectedServices = useMemo(() => allServices.filter((s) => servicesOn.has(s.title)), [allServices, servicesOn])
+
+  const addCustomService = () => {
+    const title = newSvcTitle.trim()
+    if (!title) return
+    if (allServices.some((s) => s.title.toLowerCase() === title.toLowerCase())) {
+      alert('A service with this name already exists.')
+      return
+    }
+    const entry = { title, desc: newSvcDesc.trim() || 'Ask us about this service — we will take it from there.' }
+    setCustomServices((prev) => [...prev, entry])
+    setServicesOn((prev) => new Set(prev).add(title))
+    setNewSvcTitle('')
+    setNewSvcDesc('')
+    showToast(`Service "${title}" added ✓`)
+  }
+
+  const removeCustomService = (title: string) => {
+    setCustomServices((prev) => prev.filter((s) => s.title !== title))
+    setServicesOn((prev) => { const n = new Set(prev); n.delete(title); return n })
+  }
+
+  const fillSample = (html: string) =>
+    html.replace(/\{\{\s*name\s*\}\}/gi, 'Rahul').replace(/\{\{\s*company\s*\}\}/gi, 'Demo Company')
+
+  const loadBuilderIntoCode = () => {
+    // Regenerate editable HTML from current builder settings (keeps {{name}}/{{company}} live)
+    setCustomHtml(previewHtml({ name: '{{name}}', headline, message, cta, services: selectedServices }))
+    showToast('Builder design loaded into code editor ✓')
+  }
 
   const callFunction = async (payload: any) => {
     const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
@@ -223,20 +268,37 @@ export default function CampaignsPage() {
     return data
   }
 
+  const buildPayload = (recipients: { name: string; email: string; company: string }[], testSubject?: string) => ({
+    subject: testSubject ?? subject,
+    headline,
+    message,
+    cta_text: cta,
+    services: selectedServices.map(({ title, desc }) => ({ title, desc })),
+    mode: 'promo' as const,
+    custom_html: composeMode === 'code' ? customHtml : undefined,
+    recipients,
+  })
+
+  const validateBeforeSend = () => {
+    if (!subject.trim()) { alert('Subject is required.'); return false }
+    if (composeMode === 'code') {
+      if (!customHtml.trim()) { alert('Code editor is empty — write HTML or click “Load from builder”.'); return false }
+    } else if (!message.trim()) { alert('Message is required.'); return false }
+    return true
+  }
+
   const buildRecipients = () =>
     audience.filter((m) => selected.has(m.key)).map((m) => ({ name: m.name, email: m.email, company: m.company }))
 
   const handleTest = async () => {
     if (!user?.email) { alert('Your login email is unknown — cannot send test.'); return }
+    if (!validateBeforeSend()) return
     setTesting(true)
     try {
-      const data = await callFunction({
-        subject: `[TEST] ${subject}`,
-        headline, message, cta_text: cta,
-        services: selectedServices,
-        mode: 'promo',
-        recipients: [{ name: user.full_name || 'there', email: user.email, company: 'AISE 360 (test)' }],
-      })
+      const data = await callFunction(buildPayload(
+        [{ name: user.full_name || 'there', email: user.email, company: 'AISE 360 (test)' }],
+        `[TEST] ${subject}`,
+      ))
       showToast(data.sent === 1 ? 'Test mail sent to your inbox ✓' : `Test finished: ${data.sent} sent, ${data.failed} failed`)
     } catch (e: any) {
       alert(e.message === 'NOT_DEPLOYED'
@@ -249,17 +311,12 @@ export default function CampaignsPage() {
   const handleSendAll = async () => {
     const recipients = buildRecipients()
     if (recipients.length === 0) { alert('Select at least one recipient.'); return }
-    if (!subject.trim() || !message.trim()) { alert('Subject and message are required.'); return }
+    if (!validateBeforeSend()) return
     if (!confirm(`Send this mail to ${uniqueSelected} unique email${uniqueSelected === 1 ? '' : 's'}?\n\nSubject: ${subject}`)) return
     setSending(true)
     setResult(null)
     try {
-      const data = await callFunction({
-        subject, headline, message, cta_text: cta,
-        services: selectedServices,
-        mode: 'promo',
-        recipients,
-      })
+      const data = await callFunction(buildPayload(recipients))
       const failures: RecipientRow[] = (data.results ?? [])
         .filter((r: any) => !r.ok)
         .map((r: any) => ({ email: r.email, name: r.name, status: 'failed', error: r.error }))
@@ -383,11 +440,49 @@ export default function CampaignsPage() {
         {/* LEFT: compose + audience */}
         <div className="space-y-5">
           <div className="card p-5 space-y-4">
-            <h2 className="font-semibold text-gray-900 text-sm">✉️ Compose Mail</h2>
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h2 className="font-semibold text-gray-900 text-sm">✉️ Compose Mail</h2>
+              <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs font-semibold">
+                <button onClick={() => setComposeMode('builder')} className={`px-3 py-1.5 transition-colors ${composeMode === 'builder' ? 'bg-brand-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+                  Builder
+                </button>
+                <button onClick={() => setComposeMode('code')} className={`px-3 py-1.5 transition-colors font-mono ${composeMode === 'code' ? 'bg-gray-900 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}>
+                  &lt;&gt; Code
+                </button>
+              </div>
+            </div>
             <div>
               <label className="label">Subject * <span className="text-gray-400 font-normal">(supports {'{{name}}'} {'{{company}}'})</span></label>
               <input className="input" value={subject} onChange={(e) => setSubject(e.target.value)} />
             </div>
+            {composeMode === 'code' && (
+              <div className="space-y-2 rounded-xl border border-gray-900/20 bg-gray-950 p-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <p className="text-[11px] text-gray-400">
+                    Full HTML control — change design, text, sections freely. Keep <code className="bg-gray-800 px-1 rounded text-gray-200">{'{{name}}'}</code> <code className="bg-gray-800 px-1 rounded text-gray-200">{'{{company}}'}</code> for auto-fill.
+                  </p>
+                  <div className="flex gap-1.5">
+                    <button onClick={loadBuilderIntoCode} className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-gray-800 text-gray-200 hover:bg-gray-700">
+                      Load from builder
+                    </button>
+                    <button onClick={() => { if (confirm('Clear the code editor?')) setCustomHtml('') }} className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700">
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  rows={18}
+                  spellCheck={false}
+                  className="w-full rounded-lg bg-gray-900 text-green-300 font-mono text-[11px] leading-relaxed p-3 border border-gray-800 focus:outline-none focus:border-brand-500"
+                  placeholder="Paste or write your email HTML here, then preview on the right..."
+                  value={customHtml}
+                  onChange={(e) => setCustomHtml(e.target.value)}
+                />
+                <p className="text-[11px] text-gray-500">{customHtml.length.toLocaleString('en-IN')} characters · preview updates live on the right</p>
+              </div>
+            )}
+            {composeMode === 'builder' && (
+              <>
             <div>
               <label className="label">Headline *</label>
               <input className="input" value={headline} onChange={(e) => setHeadline(e.target.value)} />
@@ -400,15 +495,34 @@ export default function CampaignsPage() {
               <label className="label">Button Text</label>
               <input className="input" value={cta} onChange={(e) => setCta(e.target.value)} />
             </div>
+              </>
+            )}
             <div>
               <label className="label">What AISE Provides (included sections)</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                {AISE_SERVICES.map((s) => (
-                  <label key={s.title} className={`flex items-start gap-2 text-xs p-2 rounded-lg border cursor-pointer transition-colors ${servicesOn.has(s.title) ? 'border-brand-300 bg-brand-50/50' : 'border-gray-200 opacity-60'}`}>
-                    <input type="checkbox" checked={servicesOn.has(s.title)} onChange={() => toggleService(s.title)} className="mt-0.5 accent-brand-600" />
-                    <span><strong>{s.title}</strong><br /><span className="text-gray-500">{s.desc}</span></span>
-                  </label>
+                {allServices.map((s) => (
+                  <div key={s.title} className={`flex items-start gap-2 text-xs p-2 rounded-lg border transition-colors ${servicesOn.has(s.title) ? 'border-brand-300 bg-brand-50/50' : 'border-gray-200 opacity-60'}`}>
+                    <label className="flex items-start gap-2 cursor-pointer flex-1 min-w-0">
+                      <input type="checkbox" checked={servicesOn.has(s.title)} onChange={() => toggleService(s.title)} className="mt-0.5 accent-brand-600 shrink-0" />
+                      <span className="min-w-0"><strong>{s.title}</strong> {s.custom && <span className="text-[10px] font-bold text-brand-600">· yours</span>}<br /><span className="text-gray-500">{s.desc}</span></span>
+                    </label>
+                    {s.custom && (
+                      <button onClick={() => removeCustomService(s.title)} className="text-gray-300 hover:text-red-500 shrink-0" title={`Remove ${s.title}`}>
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 ))}
+              </div>
+              <div className="mt-2 rounded-lg border border-dashed border-gray-300 p-2.5 bg-gray-50/60">
+                <p className="text-[11px] font-semibold text-gray-600 mb-1.5">＋ Add your own service (saved, included in mails)</p>
+                <div className="flex flex-col gap-1.5">
+                  <input className="input !py-1.5 text-xs" placeholder="Service name — e.g. Domain & Business Email" value={newSvcTitle} onChange={(e) => setNewSvcTitle(e.target.value)} />
+                  <div className="flex gap-1.5">
+                    <input className="input !py-1.5 text-xs flex-1" placeholder="One-line pitch (optional)" value={newSvcDesc} onChange={(e) => setNewSvcDesc(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomService() } }} />
+                    <button onClick={addCustomService} className="btn-primary !py-1.5 !px-3 text-xs shrink-0">Add</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -499,7 +613,9 @@ export default function CampaignsPage() {
                 title="Campaign preview"
                 className="w-full bg-white"
                 style={{ height: 640 }}
-                srcDoc={previewHtml({ name: 'Rahul', headline, message, cta, services: selectedServices })}
+                srcDoc={composeMode === 'code'
+                  ? (customHtml.trim() ? fillSample(customHtml) : '<body style="font-family:Arial;padding:40px;text-align:center;color:#888;">Write or load HTML in the <> Code editor…</body>')
+                  : previewHtml({ name: 'Rahul', headline, message, cta, services: selectedServices })}
               />
             </div>
           )}

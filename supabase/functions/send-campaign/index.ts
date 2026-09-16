@@ -31,6 +31,20 @@ function fillVars(template: string, r: { name: string; company?: string }): stri
     .replace(/\{\{\s*company\s*\}\}/gi, r.company || '')
 }
 
+function htmlToText(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|tr|h1|h2|h3|h4|li|table)>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 async function sendOne(to: string, subject: string, html: string, text: string) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -53,6 +67,7 @@ Deno.serve(async (req) => {
     const {
       subject, headline, message, cta_text, services,
       mode = 'promo', items = [], recipients = [], dry_run = false,
+      custom_html, text: custom_text,
     } = body as {
       subject: string
       headline?: string
@@ -63,15 +78,18 @@ Deno.serve(async (req) => {
       items?: RenewalItem[]
       recipients: { name: string; email: string; company?: string }[]
       dry_run?: boolean
+      custom_html?: string
+      text?: string
     }
 
     if (!subject?.trim()) {
       return new Response(JSON.stringify({ error: 'subject is required' }), { status: 400, headers: { 'Content-Type': 'application/json', ...cors } })
     }
-    if (mode === 'promo' && !message?.trim()) {
+    const useCustom = !!custom_html?.trim()
+    if (!useCustom && mode === 'promo' && !message?.trim()) {
       return new Response(JSON.stringify({ error: 'message is required for promo mode' }), { status: 400, headers: { 'Content-Type': 'application/json', ...cors } })
     }
-    if (mode === 'renewal' && (!items || items.length === 0)) {
+    if (!useCustom && mode === 'renewal' && (!items || items.length === 0)) {
       return new Response(JSON.stringify({ error: 'items are required for renewal mode' }), { status: 400, headers: { 'Content-Type': 'application/json', ...cors } })
     }
     if (!Array.isArray(recipients) || recipients.length === 0) {
@@ -107,17 +125,26 @@ Deno.serve(async (req) => {
       const batch = valid.slice(i, i + CONCURRENCY)
       const settled = await Promise.allSettled(batch.map(async (r) => {
         const personalSubject = fillVars(subject, r)
-        const built = mode === 'renewal'
-          ? buildRenewalEmail({ name: r.name, items })
-          : buildPromoEmail({
-              name: r.name,
-              company: r.company,
-              headline: fillVars(headline || 'Your Digital Partner — Always On.', r),
-              message: fillVars(message || '', r),
-              services,
-              ctaText: cta_text,
-            })
-        const id = await sendOne(r.email, personalSubject, built.html, built.text)
+        let html: string
+        let text: string
+        if (useCustom) {
+          html = fillVars(custom_html!, r)
+          text = custom_text?.trim() ? fillVars(custom_text, r) : htmlToText(html)
+        } else {
+          const built = mode === 'renewal'
+            ? buildRenewalEmail({ name: r.name, items })
+            : buildPromoEmail({
+                name: r.name,
+                company: r.company,
+                headline: fillVars(headline || 'Your Digital Partner — Always On.', r),
+                message: fillVars(message || '', r),
+                services,
+                ctaText: cta_text,
+              })
+          html = built.html
+          text = built.text
+        }
+        const id = await sendOne(r.email, personalSubject, html, text)
         return { r, id }
       }))
       settled.forEach((s, j) => {

@@ -16,14 +16,12 @@ import DashboardPage from '@/pages/DashboardPage'
 import ProjectsPage from '@/pages/ProjectsPage'
 import ProjectDetailPage from '@/pages/ProjectDetailPage'
 import TasksPage from '@/pages/TasksPage'
-import KanbanPage from '@/pages/KanbanPage'
 import DailyLogPage from '@/pages/DailyLogPage'
 import ClientsPage from '@/pages/ClientsPage'
 import FinancePage from '@/pages/FinancePage'
 import ExpensesPage from '@/pages/ExpensesPage'
 import InvoicesPage from '@/pages/InvoicesPage'
 import FollowUpsPage from '@/pages/FollowUpsPage'
-import CRMPage from '@/pages/CRMPage'
 import NetworkingPage from '@/pages/NetworkingPage'
 import BNIPage from '@/pages/BNIPage'
 import CampaignsPage from '@/pages/CampaignsPage'
@@ -122,7 +120,6 @@ export default function App() {
           <Route path="projects" element={<ProjectsPage />} />
           <Route path="projects/:id" element={<ProjectDetailPage />} />
           <Route path="tasks" element={<TasksPage />} />
-          <Route path="kanban" element={<KanbanPage />} />
           <Route path="daily-log" element={<DailyLogPage />} />
           <Route path="clients" element={<ClientsPage />} />
           <Route path="finance" element={<FinancePage />} />
@@ -130,7 +127,6 @@ export default function App() {
           <Route path="expenses" element={<ExpensesPage />} />
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="follow-ups" element={<FollowUpsPage />} />
-          <Route path="crm" element={<CRMPage />} />
           <Route path="networking" element={<NetworkingPage />} />
           <Route path="bni" element={<BNIPage />} />
           <Route path="campaigns" element={<CampaignsPage />} />

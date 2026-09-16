@@ -573,7 +573,7 @@ export default function FinancialPerformancePage() {
               <span className="font-mono font-semibold text-gray-800">{bankOnly >= 0 ? '+' : ''}{formatCurrency(bankOnly)}</span>
             </div>
             <div className="bg-white rounded-lg border border-gray-100 px-3 py-2 flex items-center justify-between">
-              <span className="text-gray-500">Matched deltas <span className="text-gray-400">(paise)</span></span>
+              <span className="text-gray-500">Timing/source diff <span className="text-gray-400">(review)</span></span>
               <span className="font-mono font-semibold text-gray-800">{(reconDeltas ?? 0) >= 0 ? '+' : ''}{formatCurrency(reconDeltas ?? 0)}</span>
             </div>
           </div>

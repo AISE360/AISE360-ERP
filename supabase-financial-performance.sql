@@ -2,6 +2,13 @@
 -- FoundersHub — FINANCIAL PERFORMANCE SYSTEM MIGRATION & SEED
 -- Run this in your Supabase SQL editor
 -- Exact match with your Financial Performance Excel Spreadsheet
+-- ------------------------------------------------------------
+-- ⚠ WARNING (Sep 2026): the live database now contains MANUAL
+-- corrections (PEES 12k, re-dated entries, BNI Akurdi expense).
+-- Do NOT re-run sections 4–6 wholesale — the upserts would
+-- overwrite those corrections. For surgical changes use
+-- supabase-fix-duplicate.sql instead.
+-- Section 0 (projects alignment) is safe to re-run any time.
 -- ============================================================
 
 -- Enable UUID extension if not enabled

@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Lightbulb,
   KeyRound,
+  Network,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -55,6 +56,7 @@ const navSections: NavSection[] = [
   {
     title: 'GROWTH & TEAM',
     items: [
+      { label: 'Networking', to: '/networking', icon: Network, badge: 'New' },
       { label: 'Follow-Ups', to: '/follow-ups', icon: Bell },
       { label: 'CRM Leads', to: '/crm', icon: TrendingUp },
       { label: 'Team', to: '/team', icon: UserCheck },

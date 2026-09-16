@@ -266,3 +266,20 @@ export interface CredentialAuditLog {
   created_at: string
 }
 
+export type BNIStatus = 'new' | 'contacted' | 'follow-up' | 'in-crm' | 'in-clients' | 'not-interested'
+
+export interface BNIContactRow {
+  id: string
+  name: string
+  company_name: string
+  email?: string | null
+  phone?: string | null
+  power_team: number
+  meet_name?: string | null
+  status: BNIStatus
+  notes?: string | null
+  created_by?: string | null
+  created_at: string
+  updated_at: string
+}
+

@@ -93,46 +93,30 @@ const EMAIL_CSS = `<style>
 </style>`;
 
 function header(sentDate: string): string {
+  // Always-centered header: looks identical on desktop and phone,
+  // no media-query dependency (some Gmail renders ignore them).
   return `
-  <div class="hdr-wrap" style="background:#0b1020;padding:32px 36px 28px;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>
-      <td class="hdr-stack" style="vertical-align:middle;">
-        <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;" class="hdr-inner"><tr>
-          <td class="hlogo" style="vertical-align:middle;">
-            <img src="${AISE_LOGO_URL}" alt="AISE 360" height="44" style="display:block;height:44px;width:auto;border:0;max-width:140px;margin:0 auto;">
-          </td>
-          <td class="hname" style="vertical-align:middle;padding-left:14px;white-space:nowrap;">
-            <div style="color:#ffffff;font-size:22px;font-weight:800;letter-spacing:-0.5px;white-space:nowrap;">AISE 360</div>
-            <div style="color:#93a4c4;font-size:12px;margin-top:2px;white-space:nowrap;">Digital Agency &amp; Web Solutions</div>
-          </td>
-        </tr></table>
-      </td>
-      <td class="hdr-stack hdr-eye" align="right" style="vertical-align:middle;color:#8b93a7;font-size:10px;letter-spacing:2px;line-height:1.8;white-space:nowrap;">
-        IDEAS &nbsp;|&nbsp; WEBSITES &nbsp;|&nbsp; GROWTH<br>ALL IN ONE PLACE
-      </td>
-    </tr></table>
-    <div class="hdr-hero" style="margin-top:24px;text-align:right;color:#ffffff;font-size:26px;font-weight:800;line-height:1.25;">Your Digital<br>Partner <span style="color:#9fb3d9;">Always On.</span></div>
-    <div class="hdr-sub" style="color:#8b93a7;font-size:10px;letter-spacing:3px;margin-top:10px;text-align:right;">BUILD &nbsp;|&nbsp; SECURE &nbsp;|&nbsp; SCALE</div>
+  <div class="hdr-wrap" style="background:#0b1020;padding:36px 30px 30px;text-align:center;">
+    <img src="${AISE_LOGO_URL}" alt="AISE 360" height="48" style="display:block;height:48px;width:auto;max-width:150px;border:0;margin:0 auto;">
+    <div style="color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-top:14px;">AISE 360</div>
+    <div style="color:#93a4c4;font-size:12px;margin-top:4px;letter-spacing:1px;">Digital Agency &amp; Web Solutions</div>
+    <div class="hdr-eye" style="color:#8b93a7;font-size:10px;letter-spacing:3px;margin-top:16px;line-height:2;">IDEAS &nbsp;|&nbsp; WEBSITES &nbsp;|&nbsp; GROWTH<br>ALL IN ONE PLACE</div>
+    <div class="hdr-hero" style="color:#ffffff;font-size:26px;font-weight:800;line-height:1.3;margin-top:20px;">Your Digital<br>Partner <span style="color:#9fb3d9;">Always On.</span></div>
+    <div style="color:#8b93a7;font-size:10px;letter-spacing:3px;margin-top:12px;">BUILD &nbsp;|&nbsp; SECURE &nbsp;|&nbsp; SCALE</div>
   </div>`
 }
 
 function footer(): string {
   return `
-  <div style="background:#0b1020;padding:26px 36px;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>
-      <td class="hdr-stack">
-        <div style="color:#ffffff;font-weight:800;font-size:15px;">AISE 360</div>
-        <div style="color:#8b93a7;font-size:12px;margin-top:2px;">Digital Agency &amp; Web Solutions</div>
-        <div style="margin-top:8px;font-size:12px;">
-          <a href="mailto:contact@aise360.com" style="color:#7ea4f2;text-decoration:none;">contact@aise360.com</a>
-          <span style="color:#4b5563;">&nbsp;|&nbsp;</span>
-          <a href="https://aise360.com" style="color:#7ea4f2;text-decoration:none;">aise360.com</a>
-        </div>
-      </td>
-      <td class="hdr-stack" align="right" style="color:#ffffff;font-size:13px;font-weight:700;line-height:1.5;">
-        Turning Ideas<br>Into Digital Reality.
-      </td>
-    </tr></table>
+  <div style="background:#0b1020;padding:28px 30px;text-align:center;">
+    <div style="color:#ffffff;font-weight:800;font-size:16px;">AISE 360</div>
+    <div style="color:#8b93a7;font-size:12px;margin-top:2px;">Digital Agency &amp; Web Solutions</div>
+    <div style="margin-top:10px;font-size:12px;">
+      <a href="mailto:contact@aise360.com" style="color:#7ea4f2;text-decoration:none;">contact@aise360.com</a>
+      <span style="color:#4b5563;">&nbsp;|&nbsp;</span>
+      <a href="https://aise360.com" style="color:#7ea4f2;text-decoration:none;">aise360.com</a>
+    </div>
+    <div style="color:#ffffff;font-size:13px;font-weight:700;margin-top:12px;">Turning Ideas Into Digital Reality.</div>
   </div>`
 }
 
@@ -180,7 +164,8 @@ export function buildRenewalEmail(opts: {
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">${EMAIL_CSS}</head>
 <body style="margin:0;padding:0;background:#111623;font-family:Arial,Helvetica,sans-serif;">
-<div style="max-width:640px;margin:0 auto;background:#ffffff;">
+<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:#111623;"><tr><td align="center" style="padding:0;">
+<div style="max-width:640px;margin:0 auto;background:#ffffff;text-align:left;">
 ${header(sentDate)}
 <div class="body-pad" style="padding:34px 36px 10px;">
   <div style="color:#2563eb;font-size:11px;font-weight:700;letter-spacing:3px;margin-bottom:10px;">SERVICE RENEWAL NOTICE</div>
@@ -219,6 +204,7 @@ ${header(sentDate)}
 </div>
 ${footer()}
 </div>
+</td></tr></table>
 </body></html>`
 
   const text = `Service Renewal Notice - AISE 360
@@ -269,7 +255,8 @@ export function buildPromoEmail(opts: {
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">${EMAIL_CSS}</head>
 <body style="margin:0;padding:0;background:#111623;font-family:Arial,Helvetica,sans-serif;">
-<div style="max-width:640px;margin:0 auto;background:#ffffff;">
+<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:#111623;"><tr><td align="center" style="padding:0;">
+<div style="max-width:640px;margin:0 auto;background:#ffffff;text-align:left;">
 ${header(sentDate)}
 <div class="body-pad" style="padding:34px 36px 10px;">
   <div style="color:#2563eb;font-size:11px;font-weight:700;letter-spacing:3px;margin-bottom:10px;">FROM TEAM AISE 360</div>
@@ -297,6 +284,7 @@ ${header(sentDate)}
 </div>
 ${footer()}
 </div>
+</td></tr></table>
 </body></html>`
 
   const text = `${opts.headline} - AISE 360

@@ -47,17 +47,13 @@ function previewHtml(opts: { name: string; headline: string; message: string; ct
       <div style="color:#6b7280;font-size:12px;">${esc(s.desc)}</div></td></tr>`).join('')
   return `<!DOCTYPE html><html><body style="margin:0;background:#111623;font-family:Arial,sans-serif;">
   <div style="max-width:600px;margin:0 auto;background:#fff;">
-    <div style="background:#0b1020;padding:28px;color:#fff;">
-      <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>
-        <td style="vertical-align:middle;">
-          <img src="${window.location.origin}/whitelogo.png" alt="AISE 360" height="44" style="display:block;height:44px;width:auto;border:0;margin:0 auto;">
-        </td>
-        <td style="vertical-align:middle;padding-left:12px;">
-          <div style="font-size:22px;font-weight:800;">AISE 360</div>
-          <div style="color:#93a4c4;font-size:12px;">Digital Agency & Web Solutions</div>
-        </td>
-      </tr></table>
-      <div style="text-align:right;margin-top:18px;font-size:22px;font-weight:800;">Your Digital<br>Partner Always On.</div>
+    <div style="background:#0b1020;padding:32px 28px 28px;color:#fff;text-align:center;">
+      <img src="${window.location.origin}/whitelogo.png" alt="AISE 360" height="48" style="display:block;height:48px;width:auto;max-width:150px;border:0;margin:0 auto;">
+      <div style="font-size:24px;font-weight:800;margin-top:14px;">AISE 360</div>
+      <div style="color:#93a4c4;font-size:12px;margin-top:4px;letter-spacing:1px;">Digital Agency & Web Solutions</div>
+      <div style="color:#8b93a7;font-size:10px;letter-spacing:3px;margin-top:16px;line-height:2;">IDEAS &nbsp;|&nbsp; WEBSITES &nbsp;|&nbsp; GROWTH<br>ALL IN ONE PLACE</div>
+      <div style="margin-top:20px;font-size:24px;font-weight:800;line-height:1.3;">Your Digital<br>Partner Always On.</div>
+      <div style="color:#8b93a7;font-size:10px;letter-spacing:3px;margin-top:12px;">BUILD &nbsp;|&nbsp; SECURE &nbsp;|&nbsp; SCALE</div>
     </div>
     <div style="padding:28px;">
       <div style="color:#2563eb;font-size:11px;font-weight:700;letter-spacing:3px;">FROM TEAM AISE 360</div>
@@ -297,7 +293,7 @@ export default function CampaignsPage() {
     setTesting(true)
     try {
       const data = await callFunction(buildPayload(
-        [{ name: user.full_name || 'there', email: user.email, company: 'AISE 360 (test)' }],
+        [{ name: 'there', email: user.email, company: 'AISE 360 (test)' }],
         `[TEST] ${subject}`,
       ))
       showToast(data.sent === 1 ? 'Test mail sent to your inbox ✓' : `Test finished: ${data.sent} sent, ${data.failed} failed`)

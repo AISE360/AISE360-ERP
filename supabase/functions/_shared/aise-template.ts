@@ -80,6 +80,15 @@ const EMAIL_CSS = `<style>
   .hdr-sub{text-align:center !important;}
   .body-pad{padding:24px 20px 6px !important;}
   .cta-btn{display:block !important;margin:0 10px !important;padding:14px 20px !important;font-size:14px !important;}
+  .resp-h1{font-size:24px !important;}
+  .resp-h2{font-size:19px !important;}
+  .rt-head{display:none !important;}
+  .rt-table,.rt-table tbody,.rt-table tr,.rt-table td{display:block !important;width:100% !important;text-align:left !important;white-space:normal !important;}
+  .rt-table tr{border-bottom:1px solid #eef2f7 !important;}
+  .rt-table td{border:0 !important;padding:5px 20px !important;}
+  .rt-table td:first-child{padding-top:12px !important;}
+  .rt-table td:last-child{padding-bottom:14px !important;}
+  .rt-table td:before{content:attr(data-label);display:block;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
 }
 </style>`;
 
@@ -158,13 +167,13 @@ export function buildRenewalEmail(opts: {
     const clean = item.title.replace(/^[^–\-]+[–\-]\s*/, '')
     return `
     <tr>
-      <td style="padding:14px 20px;border-bottom:1px solid #eef2f7;">
+      <td data-label="Service" style="padding:14px 20px;border-bottom:1px solid #eef2f7;">
         <div style="font-weight:700;color:#111827;font-size:14px;">${escapeHtml(clean)}</div>
         ${item.description ? `<div style="color:#6b7280;font-size:12px;margin-top:3px;line-height:1.5;">${escapeHtml(item.description)}</div>` : ''}
         <div style="color:#9ca3af;font-size:11px;margin-top:3px;">Expires ${escapeHtml(formatDate(item.due_date))}. Renew before expiry.</div>
       </td>
-      <td style="padding:14px 20px;border-bottom:1px solid #eef2f7;white-space:nowrap;font-size:13px;color:#374151;font-weight:600;">${escapeHtml(formatDate(item.due_date))}</td>
-      <td style="padding:14px 20px;border-bottom:1px solid #eef2f7;white-space:nowrap;text-align:right;">${statusPill(days)}</td>
+      <td data-label="Expiry date" style="padding:14px 20px;border-bottom:1px solid #eef2f7;white-space:nowrap;font-size:13px;color:#374151;font-weight:600;">${escapeHtml(formatDate(item.due_date))}</td>
+      <td data-label="Status" style="padding:14px 20px;border-bottom:1px solid #eef2f7;white-space:nowrap;text-align:right;">${statusPill(days)}</td>
     </tr>`
   }).join('')
 
@@ -175,7 +184,7 @@ export function buildRenewalEmail(opts: {
 ${header(sentDate)}
 <div class="body-pad" style="padding:34px 36px 10px;">
   <div style="color:#2563eb;font-size:11px;font-weight:700;letter-spacing:3px;margin-bottom:10px;">SERVICE RENEWAL NOTICE</div>
-  <div style="color:#0b1020;font-size:30px;font-weight:800;line-height:1.2;margin-bottom:14px;">Hi ${escapeHtml(name)},<br>Your services are coming up for <span style="color:#2563eb;">renewal.</span></div>
+  <div class="resp-h1" style="color:#0b1020;font-size:30px;font-weight:800;line-height:1.2;margin-bottom:14px;">Hi ${escapeHtml(name)},<br>Your services are coming up for <span style="color:#2563eb;">renewal.</span></div>
   <p style="color:#4b5563;font-size:14px;line-height:1.7;margin:0 0 24px;">
     This is a courtesy reminder from <strong>AISE 360</strong> regarding the upcoming renewal dates
     for the digital services we manage on your behalf. Please review the details below and
@@ -183,8 +192,8 @@ ${header(sentDate)}
   </p>
   <div style="background:#f1f5fb;border:1px solid #e2e8f5;border-radius:12px;overflow:hidden;margin-bottom:24px;">
     <div style="padding:14px 20px;color:#0b1020;font-size:15px;font-weight:800;">🗂️ Your Services &amp; Renewal Dates</div>
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-      <thead><tr style="background:#e6edf9;">
+    <table class="rt-table" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+      <thead class="rt-head"><tr style="background:#e6edf9;">
         <th align="left" style="padding:10px 20px;font-size:11px;color:#475569;font-weight:700;">SERVICE</th>
         <th align="left" style="padding:10px 20px;font-size:11px;color:#475569;font-weight:700;">EXPIRY DATE</th>
         <th align="right" style="padding:10px 20px;font-size:11px;color:#475569;font-weight:700;">STATUS</th>
@@ -264,8 +273,8 @@ export function buildPromoEmail(opts: {
 ${header(sentDate)}
 <div class="body-pad" style="padding:34px 36px 10px;">
   <div style="color:#2563eb;font-size:11px;font-weight:700;letter-spacing:3px;margin-bottom:10px;">FROM TEAM AISE 360</div>
-  <div style="color:#0b1020;font-size:28px;font-weight:800;line-height:1.25;margin-bottom:6px;">Hi ${escapeHtml(name)},</div>
-  <div style="color:#0b1020;font-size:22px;font-weight:800;line-height:1.3;margin-bottom:14px;">${escapeHtml(opts.headline)}</div>
+  <div class="resp-h1" style="color:#0b1020;font-size:28px;font-weight:800;line-height:1.25;margin-bottom:6px;">Hi ${escapeHtml(name)},</div>
+  <div class="resp-h2" style="color:#0b1020;font-size:22px;font-weight:800;line-height:1.3;margin-bottom:14px;">${escapeHtml(opts.headline)}</div>
   <p style="color:#4b5563;font-size:14px;line-height:1.7;margin:0 0 24px;">${nl2br(opts.message)}</p>
   <div style="background:#f1f5fb;border:1px solid #e2e8f5;border-radius:12px;overflow:hidden;margin-bottom:24px;">
     <div style="padding:14px 20px;color:#0b1020;font-size:15px;font-weight:800;">🚀 What AISE 360 Does For You</div>

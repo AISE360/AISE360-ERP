@@ -75,6 +75,7 @@ function previewHtml(opts: { name: string; headline: string; message: string; ct
         <strong>Need any help?</strong><br>
         <span style="color:#6b7280;">Zaid Shaikh 📞 +91 82371 43559<br>Farooque Shaikh 📞 +91 70834 71542</span>
       </div>
+      <p style="color:#9ca3af;font-size:11px;text-align:center;">Getting mails you did not ask for? Just reply with "Unsubscribe" and we will stop.</p>
     </div>
     <div style="background:#0b1020;padding:20px 28px;color:#fff;font-size:12px;">
       <strong>AISE 360</strong> · contact@aise360.com · aise360.com<br>

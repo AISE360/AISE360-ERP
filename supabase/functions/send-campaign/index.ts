@@ -52,7 +52,12 @@ async function sendOne(to: string, subject: string, html: string, text: string) 
       'Authorization': `Bearer ${RESEND_API_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ from: FROM, to: [to], reply_to: REPLY_TO, subject, html, text }),
+    body: JSON.stringify({
+      from: FROM, to: [to], reply_to: REPLY_TO, subject, html, text,
+      headers: {
+        'List-Unsubscribe': '<mailto:contact@aise360.com?subject=Unsubscribe>',
+      },
+    }),
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data?.message ?? JSON.stringify(data))

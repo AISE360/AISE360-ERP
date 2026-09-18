@@ -292,7 +292,8 @@ ${header(sentDate)}
        class="cta-btn" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:15px 40px;border-radius:10px;font-weight:700;font-size:15px;">${escapeHtml(ctaText)} &nbsp;→</a>
   </div>
   ${helpBox()}
-  <p style="color:#4b5563;font-size:13px;margin:0 0 24px;">We're happy to help!<br>- Team <strong style="color:#1d4ed8;">AISE 360</strong></p>
+  <p style="color:#4b5563;font-size:13px;margin:0 0 8px;">We're happy to help!<br>- Team <strong style="color:#1d4ed8;">AISE 360</strong></p>
+  <p style="color:#9ca3af;font-size:11px;margin:0 0 24px;text-align:center;">Getting mails you did not ask for? Just reply with "Unsubscribe" and we will stop.</p>
 </div>
 ${footer()}
 </div>
@@ -312,7 +313,8 @@ ${ctaText}: contact@aise360.com
 Need help? Zaid Shaikh +91 82371 43559 | Farooque Shaikh +91 70834 71542
 
 AISE 360 | Digital Agency & Web Solutions
-contact@aise360.com | https://aise360.com`
+contact@aise360.com | https://aise360.com
+Getting mails you did not ask for? Just reply with "Unsubscribe" and we will stop.`
 
   return { html, text }
 }

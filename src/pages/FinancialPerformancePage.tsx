@@ -523,7 +523,7 @@ export default function FinancialPerformancePage() {
             {formatCurrency(cashInHand)}
           </p>
           <p className="text-[11px] text-gray-500 mt-0.5">
-            Advance − Total Outflows
+            Advance - Total Outflows
           </p>
         </div>
       </div>
@@ -540,7 +540,7 @@ export default function FinancialPerformancePage() {
               </div>
               <div>
                 <h2 className="font-semibold text-gray-900 text-sm">Bank ↔ Books Reconciliation</h2>
-                <p className="text-[11px] text-gray-500">Why Axis balance and book in-hand differ — live computed, must sum to zero</p>
+                <p className="text-[11px] text-gray-500">Why Axis balance and book in-hand differ - live computed, must sum to zero</p>
               </div>
             </div>
             <a href="/reconciliation" className="text-xs text-brand-600 hover:underline font-medium flex items-center gap-1">
@@ -834,7 +834,7 @@ export default function FinancialPerformancePage() {
                           )}
                         </td>
                         <td className="px-3.5 py-3 font-medium text-gray-900 whitespace-nowrap">
-                          {entry.client?.company_name || '—'}
+                          {entry.client?.company_name || '-'}
                         </td>
                         <td className="px-3.5 py-3 text-gray-500 whitespace-nowrap">
                           {entry.project?.name || (entry.project as any)?.title || (
@@ -872,7 +872,7 @@ export default function FinancialPerformancePage() {
                           </span>
                         </td>
                         <td className="px-3.5 py-3 text-gray-500 max-w-xs truncate" title={entry.remarks || ''}>
-                          {entry.remarks || '—'}
+                          {entry.remarks || '-'}
                         </td>
                         <td className="px-3.5 py-3 text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-1.5">
@@ -1009,7 +1009,7 @@ export default function FinancialPerformancePage() {
                         {formatCurrency(ce.amount)}
                       </td>
                       <td className="px-4 py-3 text-gray-500 max-w-xs truncate" title={ce.remarks || ''}>
-                        {ce.remarks || '—'}
+                        {ce.remarks || '-'}
                       </td>
                       <td className="px-4 py-3 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-1.5">

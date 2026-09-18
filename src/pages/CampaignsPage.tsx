@@ -83,11 +83,11 @@ function previewHtml(opts: { name: string; headline: string; message: string; ct
   </div></body></html>`
 }
 
-const DEFAULT_SUBJECT = 'AISE 360 — Built for the Next Generation | Great connecting at BNI'
+const DEFAULT_SUBJECT = 'AISE 360 - Built for the Next Generation | Great connecting at BNI'
 const DEFAULT_HEADLINE = 'Is your brand ready for the new generation?'
 const DEFAULT_MESSAGE = `Gen-Z expects more than just a website. They want experiences that are fast, modern, relatable, and worth remembering.
 
-We understand what today's audience looks for — and we turn that understanding into digital experiences that connect. From web & mobile development to cybersecurity, cloud, marketing, SEO and AI automation — everything your brand needs, all in one place.
+We understand what today's audience looks for - and we turn that understanding into digital experiences that connect. From web & mobile development to cybersecurity, cloud, marketing, SEO and AI automation - everything your brand needs, all in one place.
 
 Great connecting at the BNI meet! If you ever need a digital partner for your next project, just reply to this mail and we'll take it from there.`
 
@@ -230,7 +230,7 @@ export default function CampaignsPage() {
       alert('A service with this name already exists.')
       return
     }
-    const entry = { title, desc: newSvcDesc.trim() || 'Ask us about this service — we will take it from there.' }
+    const entry = { title, desc: newSvcDesc.trim() || 'Ask us about this service - we will take it from there.' }
     setCustomServices((prev) => [...prev, entry])
     setServicesOn((prev) => new Set(prev).add(title))
     setNewSvcTitle('')
@@ -282,7 +282,7 @@ export default function CampaignsPage() {
   const validateBeforeSend = () => {
     if (!subject.trim()) { alert('Subject is required.'); return false }
     if (composeMode === 'code') {
-      if (!customHtml.trim()) { alert('Code editor is empty — write HTML or click “Load from builder”.'); return false }
+      if (!customHtml.trim()) { alert('Code editor is empty - write HTML or click “Load from builder”.'); return false }
     } else if (!message.trim()) { alert('Message is required.'); return false }
     return true
   }
@@ -291,7 +291,7 @@ export default function CampaignsPage() {
     audience.filter((m) => selected.has(m.key)).map((m) => ({ name: m.name, email: m.email, company: m.company }))
 
   const handleTest = async () => {
-    if (!user?.email) { alert('Your login email is unknown — cannot send test.'); return }
+    if (!user?.email) { alert('Your login email is unknown - cannot send test.'); return }
     if (!validateBeforeSend()) return
     setTesting(true)
     try {
@@ -324,7 +324,7 @@ export default function CampaignsPage() {
       // Log campaign + recipients (best-effort; tables optional)
       try {
         const { data: camp } = await supabase.from('campaigns').insert({
-          name: `Promo — ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`,
+          name: `Promo - ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`,
           subject, headline, message, cta_text: cta,
           audience_count: data.total, sent_count: data.sent, failed_count: data.failed,
           created_by: user?.id ?? null,
@@ -389,7 +389,7 @@ export default function CampaignsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Email Campaigns</h1>
-            <p className="text-xs text-gray-500">One-click AISE 360 branded mails to everyone — clients, networking contacts & leads</p>
+            <p className="text-xs text-gray-500">One-click AISE 360 branded mails to everyone - clients, networking contacts & leads</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -459,7 +459,7 @@ export default function CampaignsPage() {
               <div className="space-y-2 rounded-xl border border-gray-900/20 bg-gray-950 p-3">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <p className="text-[11px] text-gray-400">
-                    Full HTML control — change design, text, sections freely. Keep <code className="bg-gray-800 px-1 rounded text-gray-200">{'{{name}}'}</code> <code className="bg-gray-800 px-1 rounded text-gray-200">{'{{company}}'}</code> for auto-fill.
+                    Full HTML control - change design, text, sections freely. Keep <code className="bg-gray-800 px-1 rounded text-gray-200">{'{{name}}'}</code> <code className="bg-gray-800 px-1 rounded text-gray-200">{'{{company}}'}</code> for auto-fill.
                   </p>
                   <div className="flex gap-1.5">
                     <button onClick={loadBuilderIntoCode} className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-gray-800 text-gray-200 hover:bg-gray-700">
@@ -517,7 +517,7 @@ export default function CampaignsPage() {
               <div className="mt-2 rounded-lg border border-dashed border-gray-300 p-2.5 bg-gray-50/60">
                 <p className="text-[11px] font-semibold text-gray-600 mb-1.5">＋ Add your own service (saved, included in mails)</p>
                 <div className="flex flex-col gap-1.5">
-                  <input className="input !py-1.5 text-xs" placeholder="Service name — e.g. Domain & Business Email" value={newSvcTitle} onChange={(e) => setNewSvcTitle(e.target.value)} />
+                  <input className="input !py-1.5 text-xs" placeholder="Service name - e.g. Domain & Business Email" value={newSvcTitle} onChange={(e) => setNewSvcTitle(e.target.value)} />
                   <div className="flex gap-1.5">
                     <input className="input !py-1.5 text-xs flex-1" placeholder="One-line pitch (optional)" value={newSvcDesc} onChange={(e) => setNewSvcDesc(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomService() } }} />
                     <button onClick={addCustomService} className="btn-primary !py-1.5 !px-3 text-xs shrink-0">Add</button>
@@ -620,7 +620,7 @@ export default function CampaignsPage() {
             </div>
           )}
           <p className="text-[11px] text-gray-400 leading-relaxed">
-            Preview shows the exact Resend template design — dark AISE 360 header, services grid, help contacts & footer.
+            Preview shows the exact Resend template design - dark AISE 360 header, services grid, help contacts & footer.
             {'{{name}}'} and {'{{company}}'} in subject/message auto-fill per recipient when sending.
           </p>
         </div>

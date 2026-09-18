@@ -281,7 +281,7 @@ export default function FinancialEntryModal({
                 <option value="">No Linked Invoice</option>
                 {clientInvoices.map(inv => (
                   <option key={inv.id} value={inv.id}>
-                    #{inv.invoice_number} — {formatCurrency(inv.amount)} ({inv.status})
+                    #{inv.invoice_number} - {formatCurrency(inv.amount)} ({inv.status})
                   </option>
                 ))}
               </select>
@@ -366,7 +366,7 @@ export default function FinancialEntryModal({
                 <p className={`text-base font-bold ${calculatedBalance > 0 ? 'text-amber-600' : 'text-green-600'}`}>
                   {formatCurrency(calculatedBalance)}
                 </p>
-                <span className="text-[10px] text-gray-400">Charged − Advance</span>
+                <span className="text-[10px] text-gray-400">Charged - Advance</span>
               </div>
 
               <div className="bg-white p-3 rounded-lg border border-gray-200">
@@ -374,7 +374,7 @@ export default function FinancialEntryModal({
                 <p className={`text-base font-bold ${calculatedProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   {formatCurrency(calculatedProfit)}
                 </p>
-                <span className="text-[10px] text-gray-400">Charged − Expense</span>
+                <span className="text-[10px] text-gray-400">Charged - Expense</span>
               </div>
             </div>
           </div>

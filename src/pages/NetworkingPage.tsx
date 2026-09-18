@@ -7,7 +7,7 @@ import {
   TrendingUp, UserPlus, CheckCircle, X, Loader2, Network, Filter, CalendarPlus,
 } from 'lucide-react'
 
-// Generic networking contact — works for BNI meets AND any future meet/event.
+// Generic networking contact - works for BNI meets AND any future meet/event.
 type NetStatus = 'new' | 'contacted' | 'follow-up' | 'in-crm' | 'in-clients' | 'not-interested'
 
 interface NetContact extends BNIContactSeed {
@@ -97,7 +97,7 @@ export default function NetworkingPage() {
           }))
         }
       } catch {
-        // table may not exist yet — fall back to seed data
+        // table may not exist yet - fall back to seed data
       }
       const keyOf = (ct: NetContact) => `${ct.meet}|${ct.name}|${ct.company}`
       const merged = base.map((ct) => {
@@ -182,7 +182,7 @@ export default function NetworkingPage() {
         phone: ct.phone || null,
         email: ct.email || null,
         status: 'lead',
-        notes: `${ct.meet}${ct.team ? ` — Group ${ct.team}` : ''}${ct.notes ? ' — ' + ct.notes : ''}`,
+        notes: `${ct.meet}${ct.team ? ` - Group ${ct.team}` : ''}${ct.notes ? ' - ' + ct.notes : ''}`,
         created_by: user.id,
         updated_at: new Date().toISOString(),
       })
@@ -204,7 +204,7 @@ export default function NetworkingPage() {
         contact_person: ct.name,
         phone: ct.phone || '-',
         email: ct.email || `${(ct.phone || 'nomeet').replace(/\D/g, '')}@networking.local`,
-        notes: `${ct.meet}${ct.team ? ` — Group ${ct.team}` : ''}${ct.notes ? ' — ' + ct.notes : ''}`,
+        notes: `${ct.meet}${ct.team ? ` - Group ${ct.team}` : ''}${ct.notes ? ' - ' + ct.notes : ''}`,
       })
       if (error) throw error
       await setStatus(ct, 'in-clients')
@@ -219,7 +219,7 @@ export default function NetworkingPage() {
   const importAllToCRM = async () => {
     if (!user) { alert('Login required'); return }
     const targets = filtered.filter((c) => c.status === 'new' || c.status === 'contacted' || c.status === 'follow-up')
-    if (targets.length === 0) { alert('Nothing new to import — all filtered contacts are already processed.'); return }
+    if (targets.length === 0) { alert('Nothing new to import - all filtered contacts are already processed.'); return }
     if (!confirm(`Add ${targets.length} contacts to CRM Leads?`)) return
     setBulkBusy(true)
     try {
@@ -233,7 +233,7 @@ export default function NetworkingPage() {
         phone: ct.phone || null,
         email: ct.email || null,
         status: 'lead',
-        notes: `${ct.meet} — bulk import`,
+        notes: `${ct.meet} - bulk import`,
         created_by: user.id,
         updated_at: new Date().toISOString(),
       }))
@@ -277,7 +277,7 @@ export default function NetworkingPage() {
     setNewForm((f) => ({ ...f, meet: name }))
     setMeetDraft('')
     setShowMeet(false)
-    showToast(`Meet "${name}" ready — now add contacts to it ✓`)
+    showToast(`Meet "${name}" ready - now add contacts to it ✓`)
   }
 
   const addManual = (e: React.FormEvent) => {
@@ -447,8 +447,8 @@ export default function NetworkingPage() {
               </div>
 
               <div className="text-xs text-gray-600 space-y-0.5 mb-2">
-                <p className="truncate">📞 {ct.phones.join(' / ') || '—'}</p>
-                <p className="truncate" title={ct.emails.join(', ')}>✉️ {ct.emails.join(', ') || '—'}</p>
+                <p className="truncate">📞 {ct.phones.join(' / ') || '-'}</p>
+                <p className="truncate" title={ct.emails.join(', ')}>✉️ {ct.emails.join(', ') || '-'}</p>
               </div>
 
               {ct.notes && <p className="text-[11px] text-gray-500 bg-gray-50 rounded-lg p-2 mb-2 line-clamp-2">📝 {ct.notes}</p>}
@@ -466,7 +466,7 @@ export default function NetworkingPage() {
                   </>
                 )}
                 {ct.email && (
-                  <a href={`mailto:${ct.email}?subject=${encodeURIComponent(`Great connecting at ${ct.meet} — AISE 360`)}`} className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[11px] font-semibold text-blue-700 border border-blue-200">
+                  <a href={`mailto:${ct.email}?subject=${encodeURIComponent(`Great connecting at ${ct.meet} - AISE 360`)}`} className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[11px] font-semibold text-blue-700 border border-blue-200">
                     <Mail className="w-3 h-3" /> Email
                   </a>
                 )}
@@ -580,7 +580,7 @@ export default function NetworkingPage() {
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
             <div className="flex items-center justify-between p-5 border-b">
-              <h2 className="font-semibold text-sm">Note — {editNote.company}</h2>
+              <h2 className="font-semibold text-sm">Note - {editNote.company}</h2>
               <button onClick={() => setEditNote(null)}><X className="w-5 h-5 text-gray-400" /></button>
             </div>
             <div className="p-5 space-y-3">

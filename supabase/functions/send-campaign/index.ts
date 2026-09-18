@@ -1,6 +1,6 @@
 // ============================================================
 // Supabase Edge Function: send-campaign
-// One-click bulk mailer — sends the AISE 360 branded template
+// One-click bulk mailer - sends the AISE 360 branded template
 // (promo/advertising mode or renewal mode) to many recipients.
 // Body: {
 //   subject, headline?, message?, cta_text?, services?,
@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
             : buildPromoEmail({
                 name: r.name,
                 company: r.company,
-                headline: fillVars(headline || 'Your Digital Partner — Always On.', r),
+                headline: fillVars(headline || 'Your Digital Partner - Always On.', r),
                 message: fillVars(message || '', r),
                 services,
                 ctaText: cta_text,

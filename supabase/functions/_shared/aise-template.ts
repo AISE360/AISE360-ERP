@@ -1,8 +1,8 @@
 // ============================================================
 // Shared AISE 360 email template (Resend)
 // Two modes:
-//   renewal — service renewal notice w/ services table + note
-//   promo   — advertising mailer w/ "what AISE provides" grid
+//   renewal - service renewal notice w/ services table + note
+//   promo   - advertising mailer w/ "what AISE provides" grid
 // Email-client-safe: table layout, inline styles, system fonts.
 // ============================================================
 
@@ -68,29 +68,42 @@ function daysUntil(dateStr: string): number {
   return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
+const EMAIL_CSS = `<style>
+@media only screen and (max-width:480px){
+  .hdr-wrap{padding:24px 20px 22px !important;}
+  .hdr-stack{display:block !important;width:100% !important;text-align:center !important;}
+  .hdr-eye{padding-top:14px !important;text-align:center !important;}
+  .hdr-inner{margin:0 auto !important;}
+  .hlogo,.hname{display:block !important;text-align:center !important;padding-left:0 !important;}
+  .hname{padding-top:10px !important;}
+  .hdr-hero{font-size:23px !important;text-align:center !important;}
+  .hdr-sub{text-align:center !important;}
+  .body-pad{padding:24px 20px 6px !important;}
+  .cta-btn{display:block !important;margin:0 10px !important;padding:14px 20px !important;font-size:14px !important;}
+}
+</style>`;
+
 function header(sentDate: string): string {
   return `
-  <div style="background:#0b1020;padding:36px 36px 30px;">
+  <div class="hdr-wrap" style="background:#0b1020;padding:32px 36px 28px;">
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>
-      <td>
-        <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>
-          <td style="vertical-align:middle;">
-            <img src="${AISE_LOGO_URL}" alt="AISE 360" height="48" style="display:block;height:48px;width:auto;border:0;">
+      <td class="hdr-stack" style="vertical-align:middle;">
+        <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;" class="hdr-inner"><tr>
+          <td class="hlogo" style="vertical-align:middle;">
+            <img src="${AISE_LOGO_URL}" alt="AISE 360" height="44" style="display:block;height:44px;width:auto;border:0;max-width:140px;">
           </td>
-          <td style="vertical-align:middle;padding-left:14px;">
-            <div style="color:#ffffff;font-size:24px;font-weight:800;letter-spacing:-0.5px;">AISE 360</div>
-            <div style="color:#93a4c4;font-size:13px;margin-top:2px;">Digital Agency &amp; Web Solutions</div>
+          <td class="hname" style="vertical-align:middle;padding-left:14px;white-space:nowrap;">
+            <div style="color:#ffffff;font-size:22px;font-weight:800;letter-spacing:-0.5px;white-space:nowrap;">AISE 360</div>
+            <div style="color:#93a4c4;font-size:12px;margin-top:2px;white-space:nowrap;">Digital Agency &amp; Web Solutions</div>
           </td>
         </tr></table>
       </td>
-      <td align="right" style="color:#8b93a7;font-size:10px;letter-spacing:2px;line-height:1.8;">
+      <td class="hdr-stack hdr-eye" align="right" style="vertical-align:middle;color:#8b93a7;font-size:10px;letter-spacing:2px;line-height:1.8;white-space:nowrap;">
         IDEAS &nbsp;|&nbsp; WEBSITES &nbsp;|&nbsp; GROWTH<br>ALL IN ONE PLACE
       </td>
     </tr></table>
-    <div style="margin-top:26px;text-align:right;">
-      <div style="color:#ffffff;font-size:26px;font-weight:800;line-height:1.25;">Your Digital<br>Partner <span style="color:#9fb3d9;">Always On.</span></div>
-      <div style="color:#8b93a7;font-size:10px;letter-spacing:3px;margin-top:10px;">BUILD &nbsp;|&nbsp; SECURE &nbsp;|&nbsp; SCALE</div>
-    </div>
+    <div class="hdr-hero" style="margin-top:24px;text-align:right;color:#ffffff;font-size:26px;font-weight:800;line-height:1.25;">Your Digital<br>Partner <span style="color:#9fb3d9;">Always On.</span></div>
+    <div class="hdr-sub" style="color:#8b93a7;font-size:10px;letter-spacing:3px;margin-top:10px;text-align:right;">BUILD &nbsp;|&nbsp; SECURE &nbsp;|&nbsp; SCALE</div>
   </div>`
 }
 
@@ -98,7 +111,7 @@ function footer(): string {
   return `
   <div style="background:#0b1020;padding:26px 36px;">
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;"><tr>
-      <td>
+      <td class="hdr-stack">
         <div style="color:#ffffff;font-weight:800;font-size:15px;">AISE 360</div>
         <div style="color:#8b93a7;font-size:12px;margin-top:2px;">Digital Agency &amp; Web Solutions</div>
         <div style="margin-top:8px;font-size:12px;">
@@ -107,7 +120,7 @@ function footer(): string {
           <a href="https://aise360.com" style="color:#7ea4f2;text-decoration:none;">aise360.com</a>
         </div>
       </td>
-      <td align="right" style="color:#ffffff;font-size:13px;font-weight:700;line-height:1.5;">
+      <td class="hdr-stack" align="right" style="color:#ffffff;font-size:13px;font-weight:700;line-height:1.5;">
         Turning Ideas<br>Into Digital Reality.
       </td>
     </tr></table>
@@ -156,11 +169,11 @@ export function buildRenewalEmail(opts: {
   }).join('')
 
   const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">${EMAIL_CSS}</head>
 <body style="margin:0;padding:0;background:#111623;font-family:Arial,Helvetica,sans-serif;">
 <div style="max-width:640px;margin:0 auto;background:#ffffff;">
 ${header(sentDate)}
-<div style="padding:34px 36px 10px;">
+<div class="body-pad" style="padding:34px 36px 10px;">
   <div style="color:#2563eb;font-size:11px;font-weight:700;letter-spacing:3px;margin-bottom:10px;">SERVICE RENEWAL NOTICE</div>
   <div style="color:#0b1020;font-size:30px;font-weight:800;line-height:1.2;margin-bottom:14px;">Hi ${escapeHtml(name)},<br>Your services are coming up for <span style="color:#2563eb;">renewal.</span></div>
   <p style="color:#4b5563;font-size:14px;line-height:1.7;margin:0 0 24px;">
@@ -184,22 +197,22 @@ ${header(sentDate)}
     <div style="color:#78350f;font-size:13px;line-height:1.6;">
       Auto-renewal is currently <strong>disabled</strong> for all services.
       Please contact us before the expiry date to avoid any service interruption.
-      We recommend renewing at least <strong>7–10 days in advance</strong>.
+      We recommend renewing at least <strong>7-10 days in advance</strong>.
     </div>
   </div>
   <div style="text-align:center;margin-bottom:24px;">
-    <a href="mailto:contact@aise360.com?subject=${encodeURIComponent('Renewal Request — ' + name)}"
-       style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:15px 40px;border-radius:10px;font-weight:700;font-size:15px;">Contact Us to Renew &nbsp;→</a>
+    <a href="mailto:contact@aise360.com?subject=${encodeURIComponent('Renewal Request - ' + name)}"
+       class="cta-btn" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:15px 40px;border-radius:10px;font-weight:700;font-size:15px;">Contact Us to Renew &nbsp;→</a>
   </div>
   <p style="color:#6b7280;font-size:13px;line-height:1.6;margin:0 0 22px;text-align:center;">If you have any questions, we're happy to help!</p>
   ${helpBox()}
-  <p style="color:#4b5563;font-size:13px;margin:0 0 24px;">We're happy to help!<br>— Team <strong style="color:#1d4ed8;">AISE 360</strong></p>
+  <p style="color:#4b5563;font-size:13px;margin:0 0 24px;">We're happy to help!<br>- Team <strong style="color:#1d4ed8;">AISE 360</strong></p>
 </div>
 ${footer()}
 </div>
 </body></html>`
 
-  const text = `Service Renewal Notice — AISE 360
+  const text = `Service Renewal Notice - AISE 360
 
 Hi ${name},
 Your services are coming up for renewal.
@@ -209,7 +222,7 @@ This is a courtesy reminder from AISE 360 regarding the upcoming renewal dates f
 Your Services & Renewal Dates:
 ${opts.items.map((i) => `- ${i.title.replace(/^[^–\-]+[–\-]\s*/, '')}: expires ${formatDate(i.due_date)}${i.description ? ` (${i.description})` : ''}`).join('\n')}
 
-IMPORTANT: Auto-renewal is currently disabled for all services. Please contact us before the expiry date — we recommend renewing at least 7–10 days in advance.
+IMPORTANT: Auto-renewal is currently disabled for all services. Please contact us before the expiry date - we recommend renewing at least 7-10 days in advance.
 
 Contact us to renew: contact@aise360.com
 Need help? Zaid Shaikh +91 82371 43559 | Farooque Shaikh +91 70834 71542
@@ -217,7 +230,7 @@ Need help? Zaid Shaikh +91 82371 43559 | Farooque Shaikh +91 70834 71542
 AISE 360 | Digital Agency & Web Solutions
 contact@aise360.com | https://aise360.com`
 
-  return { html, text, subject: `Service Renewal Reminder — ${name} | AISE 360` }
+  return { html, text, subject: `Service Renewal Reminder - ${name} | AISE 360` }
 }
 
 // ── PROMO / ADVERTISING MODE ─────────────────────────────────
@@ -245,11 +258,11 @@ export function buildPromoEmail(opts: {
     </tr>`).join('')
 
   const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">${EMAIL_CSS}</head>
 <body style="margin:0;padding:0;background:#111623;font-family:Arial,Helvetica,sans-serif;">
 <div style="max-width:640px;margin:0 auto;background:#ffffff;">
 ${header(sentDate)}
-<div style="padding:34px 36px 10px;">
+<div class="body-pad" style="padding:34px 36px 10px;">
   <div style="color:#2563eb;font-size:11px;font-weight:700;letter-spacing:3px;margin-bottom:10px;">FROM TEAM AISE 360</div>
   <div style="color:#0b1020;font-size:28px;font-weight:800;line-height:1.25;margin-bottom:6px;">Hi ${escapeHtml(name)},</div>
   <div style="color:#0b1020;font-size:22px;font-weight:800;line-height:1.3;margin-bottom:14px;">${escapeHtml(opts.headline)}</div>
@@ -260,23 +273,23 @@ ${header(sentDate)}
   </div>
   <div style="background:#eaf1fe;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:26px;">
     <div style="color:#1e3a8a;font-size:13px;line-height:1.6;">
-      <strong>AISE 360 — built for the next generation.</strong><br>
-      Websites, apps, security, marketing &amp; growth — build, secure &amp; scale, all in one place.
+      <strong>AISE 360 - built for the next generation.</strong><br>
+      Websites, apps, security, marketing &amp; growth - build, secure &amp; scale, all in one place.
       Reply to this mail or call us, and we'll take it from there.
     </div>
   </div>
   <div style="text-align:center;margin-bottom:24px;">
     <a href="mailto:contact@aise360.com?subject=${encodeURIComponent('New Enquiry via AISE 360 Mailer')}"
-       style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:15px 40px;border-radius:10px;font-weight:700;font-size:15px;">${escapeHtml(ctaText)} &nbsp;→</a>
+       class="cta-btn" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;padding:15px 40px;border-radius:10px;font-weight:700;font-size:15px;">${escapeHtml(ctaText)} &nbsp;→</a>
   </div>
   ${helpBox()}
-  <p style="color:#4b5563;font-size:13px;margin:0 0 24px;">We're happy to help!<br>— Team <strong style="color:#1d4ed8;">AISE 360</strong></p>
+  <p style="color:#4b5563;font-size:13px;margin:0 0 24px;">We're happy to help!<br>- Team <strong style="color:#1d4ed8;">AISE 360</strong></p>
 </div>
 ${footer()}
 </div>
 </body></html>`
 
-  const text = `${opts.headline} — AISE 360
+  const text = `${opts.headline} - AISE 360
 
 Hi ${name},
 
@@ -285,7 +298,7 @@ ${opts.message}
 What AISE 360 does for you:
 ${services.map((s) => `- ${s.title}: ${s.desc}`).join('\n')}
 
-One team for ideas, websites & growth — AISE 360, built for the next generation.
+One team for ideas, websites & growth - AISE 360, built for the next generation.
 ${ctaText}: contact@aise360.com
 Need help? Zaid Shaikh +91 82371 43559 | Farooque Shaikh +91 70834 71542
 

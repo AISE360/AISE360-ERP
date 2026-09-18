@@ -90,7 +90,7 @@ function header(sentDate: string): string {
       <td class="hdr-stack" style="vertical-align:middle;">
         <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;" class="hdr-inner"><tr>
           <td class="hlogo" style="vertical-align:middle;">
-            <img src="${AISE_LOGO_URL}" alt="AISE 360" height="44" style="display:block;height:44px;width:auto;border:0;max-width:140px;">
+            <img src="${AISE_LOGO_URL}" alt="AISE 360" height="44" style="display:block;height:44px;width:auto;border:0;max-width:140px;margin:0 auto;">
           </td>
           <td class="hname" style="vertical-align:middle;padding-left:14px;white-space:nowrap;">
             <div style="color:#ffffff;font-size:22px;font-weight:800;letter-spacing:-0.5px;white-space:nowrap;">AISE 360</div>

@@ -35,12 +35,14 @@ CREATE TABLE IF NOT EXISTS campaign_recipients (
   status text NOT NULL DEFAULT 'sent'
     CHECK (status IN ('sent', 'failed', 'skipped')),
   error text,
-  sent_at timestamptz NOT NULL DEFAULT now()
+  sent_at timestamptz NOT NULL DEFAULT now(),
+  retried boolean NOT NULL DEFAULT false
 );
 
 CREATE INDEX IF NOT EXISTS idx_campaigns_created ON campaigns(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_campaign_recipients_campaign ON campaign_recipients(campaign_id);
 CREATE INDEX IF NOT EXISTS idx_campaign_recipients_email ON campaign_recipients(email);
+CREATE INDEX IF NOT EXISTS idx_campaign_recipients_failed_queue ON campaign_recipients(status, retried, sent_at DESC);
 
 -- ─────────────────────────────────────────
 -- 3. ROW LEVEL SECURITY

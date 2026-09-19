@@ -20,6 +20,9 @@ interface CampaignRow {
   id: string
   name: string
   subject: string
+  headline?: string | null
+  message?: string | null
+  cta_text?: string | null
   audience_count: number
   sent_count: number
   failed_count: number
@@ -27,10 +30,25 @@ interface CampaignRow {
 }
 
 interface RecipientRow {
+  id?: string
+  campaign_id?: string
   email: string
   name: string
+  company?: string | null
   status: string
   error?: string | null
+  sent_at?: string
+}
+
+interface FailedQueueRow {
+  id: string
+  campaign_id: string
+  email: string
+  name: string
+  company?: string | null
+  error?: string | null
+  sent_at: string
+  campaign_subject?: string
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
@@ -121,6 +139,12 @@ export default function CampaignsPage() {
   const [expandRows, setExpandRows] = useState<RecipientRow[]>([])
   const [expandLoading, setExpandLoading] = useState(false)
 
+  // Failed retry queue: pending failed mails (Resend limit etc.)
+  // Cycle: failed -> retry next day -> success clears queue (empty)
+  const [failedQueue, setFailedQueue] = useState<FailedQueueRow[]>([])
+  const [failedLoading, setFailedLoading] = useState(false)
+  const [retrying, setRetrying] = useState(false)
+
   useEffect(() => {
     const load = async () => {
       const [{ data: clients }, { data: leads }] = await Promise.all([
@@ -153,6 +177,7 @@ export default function CampaignsPage() {
         const { data } = await supabase.from('campaigns').select('*').order('created_at', { ascending: false }).limit(20)
         setHistory((data as any) ?? [])
       } catch { /* table may not exist yet */ }
+      loadFailedQueue()
     }
     load()
   }, [])
@@ -169,6 +194,58 @@ export default function CampaignsPage() {
   const showToast = (msg: string) => {
     setToast(msg)
     setTimeout(() => setToast(null), 3000)
+  }
+
+  // Load pending failed mails across all campaigns (retry queue).
+  // Works before/after the `retried` migration: falls back if column missing.
+  const loadFailedQueue = async () => {
+    setFailedLoading(true)
+    let rows: any[] | null = null
+    try {
+      const attempt = await supabase
+        .from('campaign_recipients')
+        .select('id, campaign_id, email, name, company, error, sent_at, retried')
+        .eq('status', 'failed')
+        .eq('retried', false)
+        .order('sent_at', { ascending: false })
+        .limit(500)
+      if (attempt.error) throw attempt.error
+      rows = attempt.data
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_e) {
+      try {
+        const fb = await supabase
+          .from('campaign_recipients')
+          .select('id, campaign_id, email, name, company, error, sent_at')
+          .eq('status', 'failed')
+          .order('sent_at', { ascending: false })
+          .limit(500)
+        rows = fb.data
+      } catch { rows = [] }
+    }
+    try {
+      const list = (rows ?? []) as FailedQueueRow[]
+      // attach campaign subject for context (best-effort)
+      const ids = [...new Set(list.map((r) => r.campaign_id).filter(Boolean))]
+      let subjectById: Record<string, string> = {}
+      if (ids.length > 0) {
+        const { data: camps } = await supabase.from('campaigns').select('id, subject').in('id', ids)
+        ;(camps ?? []).forEach((c: any) => { subjectById[c.id] = c.subject })
+      } else {
+        history.forEach((c) => { subjectById[c.id] = c.subject })
+      }
+      setFailedQueue(list.map((r) => ({ ...r, campaign_subject: subjectById[r.campaign_id] ?? '' })))
+    } catch {
+      setFailedQueue([])
+    }
+    setFailedLoading(false)
+  }
+
+  const markQueueRetried = async (ids: string[]) => {
+    if (ids.length === 0) return
+    try {
+      await supabase.from('campaign_recipients').update({ retried: true }).in('id', ids)
+    } catch { /* column may not exist yet — queue will empty on next full success anyway */ }
   }
 
   const filtered = useMemo(() => {
@@ -337,6 +414,7 @@ export default function CampaignsPage() {
         const { data: hist } = await supabase.from('campaigns').select('*').order('created_at', { ascending: false }).limit(20)
         setHistory((hist as any) ?? [])
       } catch { /* logging tables optional */ }
+      loadFailedQueue()
       showToast(`${data.sent} mails sent ✓${data.failed ? `, ${data.failed} failed` : ''}`)
     } catch (e: any) {
       alert(e.message === 'NOT_DEPLOYED'
@@ -351,12 +429,156 @@ export default function CampaignsPage() {
     setExpanded(id)
     setExpandLoading(true)
     try {
-      const { data } = await supabase.from('campaign_recipients').select('email, name, status, error').eq('campaign_id', id).limit(500)
+      const { data } = await supabase.from('campaign_recipients').select('id, email, name, company, status, error').eq('campaign_id', id).limit(500)
       setExpandRows((data as any) ?? [])
     } catch {
       setExpandRows([])
     }
     setExpandLoading(false)
+  }
+
+  // Retry one campaign's failed mails with its ORIGINAL content.
+  // After success the old rows are marked retried -> queue empties (cycle).
+  const handleRetryCampaign = async (campaignId: string) => {
+    const camp = history.find((c) => c.id === campaignId)
+    if (!camp) { alert('Campaign not found.'); return }
+    if (!confirm(`Resend failed mails for:\n\n${camp.subject}\n\nThis uses the original subject/message. Continue?`)) return
+    setRetrying(true)
+    try {
+      // fetch pending failed for this campaign
+      let failed: any[] = []
+      try {
+        const { data, error } = await supabase.from('campaign_recipients')
+          .select('id, email, name, company, error').eq('campaign_id', campaignId)
+          .eq('status', 'failed').eq('retried', false).limit(500)
+        if (error) throw error
+        failed = data ?? []
+      } catch {
+        const { data } = await supabase.from('campaign_recipients')
+          .select('id, email, name, company, error').eq('campaign_id', campaignId)
+          .eq('status', 'failed').limit(500)
+        failed = (data as any) ?? []
+      }
+      if (failed.length === 0) { showToast('Nothing pending to retry ✓'); setRetrying(false); return }
+      const recipients = failed.map((r: any) => ({ name: r.name ?? 'there', email: r.email, company: r.company ?? '' }))
+      const data = await callFunction({
+        subject: camp.subject,
+        headline: camp.headline ?? DEFAULT_HEADLINE,
+        message: camp.message ?? '',
+        cta_text: camp.cta_text ?? 'Get a Free Quote',
+        services: selectedServices.map(({ title, desc }) => ({ title, desc })),
+        mode: 'promo' as const,
+        recipients,
+      })
+      // log retry as new campaign + mark old rows retried (cycle empty)
+      try {
+        const { data: retryCamp } = await supabase.from('campaigns').insert({
+          name: `Retry - ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`,
+          subject: camp.subject, headline: camp.headline, message: camp.message, cta_text: camp.cta_text,
+          audience_count: data.total, sent_count: data.sent, failed_count: data.failed,
+          created_by: user?.id ?? null,
+        }).select('id').single()
+        if (retryCamp?.id) {
+          await supabase.from('campaign_recipients').insert(
+            (data.results ?? []).map((r: any) => ({
+              campaign_id: retryCamp.id, name: r.name, email: r.email,
+              status: r.ok ? 'sent' : 'failed', error: r.error ?? null,
+            })),
+          )
+        }
+        await markQueueRetried(failed.map((r: any) => r.id))
+        const { data: hist } = await supabase.from('campaigns').select('*').order('created_at', { ascending: false }).limit(20)
+        setHistory((hist as any) ?? [])
+      } catch { /* logging optional */ }
+      await loadFailedQueue()
+      showToast(data.failed === 0 ? `Retry done: ${data.sent} sent, queue empty ✓` : `${data.sent} sent, ${data.failed} still failing (retry tomorrow)`)
+      setResult({
+        sent: data.sent, failed: data.failed,
+        failures: (data.results ?? []).filter((r: any) => !r.ok).map((r: any) => ({ email: r.email, name: r.name, status: 'failed', error: r.error })),
+      })
+    } catch (e: any) {
+      alert(`Retry failed: ${e.message ?? e}`)
+    }
+    setRetrying(false)
+  }
+
+  // Retry ALL pending failed mails, grouped by original campaign (keeps content correct).
+  const handleRetryAllFailed = async () => {
+    if (failedQueue.length === 0) return
+    if (!confirm(`Resend all ${failedQueue.length} failed mails?\n\nEach group resends with its original subject/message (safe for next-day Resend limit retry). Continue?`)) return
+    setRetrying(true)
+    try {
+      const byCampaign = new Map<string, FailedQueueRow[]>()
+      failedQueue.forEach((r) => {
+        const arr = byCampaign.get(r.campaign_id) ?? []
+        arr.push(r)
+        byCampaign.set(r.campaign_id, arr)
+      })
+      let totalSent = 0
+      let totalFailed = 0
+      const stillFailing: RecipientRow[] = []
+      for (const [campaignId, rows] of byCampaign) {
+        const camp = history.find((c) => c.id === campaignId)
+        const payload = {
+          subject: camp?.subject ?? subject,
+          headline: camp?.headline ?? headline,
+          message: camp?.message ?? message,
+          cta_text: camp?.cta_text ?? cta,
+          services: selectedServices.map(({ title, desc }) => ({ title, desc })),
+          mode: 'promo' as const,
+          recipients: rows.map((r) => ({ name: r.name ?? 'there', email: r.email, company: r.company ?? '' })),
+        }
+        const data = await callFunction(payload)
+        totalSent += data.sent
+        totalFailed += data.failed
+        ;(data.results ?? []).filter((r: any) => !r.ok).forEach((r: any) =>
+          stillFailing.push({ email: r.email, name: r.name, status: 'failed', error: r.error }))
+        try {
+          const { data: retryCamp } = await supabase.from('campaigns').insert({
+            name: `Retry - ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`,
+            subject: payload.subject, headline: payload.headline, message: payload.message, cta_text: payload.cta_text,
+            audience_count: data.total, sent_count: data.sent, failed_count: data.failed,
+            created_by: user?.id ?? null,
+          }).select('id').single()
+          if (retryCamp?.id) {
+            await supabase.from('campaign_recipients').insert(
+              (data.results ?? []).map((r: any) => ({
+                campaign_id: retryCamp.id, name: r.name, email: r.email,
+                status: r.ok ? 'sent' : 'failed', error: r.error ?? null,
+              })),
+            )
+          }
+          // mark this group's old rows retried regardless — fresh failures are logged as new rows (cycle)
+          await markQueueRetried(rows.map((r) => r.id))
+        } catch { /* logging optional */ }
+      }
+      const { data: hist } = await supabase.from('campaigns').select('*').order('created_at', { ascending: false }).limit(20)
+      setHistory((hist as any) ?? [])
+      await loadFailedQueue()
+      setResult({ sent: totalSent, failed: totalFailed, failures: stillFailing })
+      showToast(totalFailed === 0 ? `All retried: ${totalSent} sent, queue empty ✓` : `${totalSent} sent, ${totalFailed} still failing`)
+    } catch (e: any) {
+      alert(`Retry-all failed: ${e.message ?? e}`)
+    }
+    setRetrying(false)
+  }
+
+  const handleClearFailed = async () => {
+    if (failedQueue.length === 0) return
+    if (!confirm(`Clear ${failedQueue.length} pending failed mails without resending?\nThey will be removed from the queue.`)) return
+    await markQueueRetried(failedQueue.map((r) => r.id))
+    await loadFailedQueue()
+    showToast('Failed queue cleared ✓')
+  }
+
+  const exportFailedQueue = () => {
+    if (failedQueue.length === 0) return
+    const csv = ['email,name,company,error,campaign', ...failedQueue.map((f) =>
+      `${f.email},"${(f.name ?? '').replace(/"/g, "'")}","${(f.company ?? '').replace(/"/g, "'")}","${(f.error ?? '').replace(/"/g, "'")}","${(f.campaign_subject ?? '').replace(/"/g, "'")}"`)].join('\n')
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
+    a.download = 'failed-queue.csv'
+    a.click()
   }
 
   const exportFailures = () => {
@@ -432,6 +654,56 @@ export default function CampaignsPage() {
           )}
         </div>
       )}
+
+      {/* Failed retry queue — limit fails land here, retry next day empties it (cycle) */}
+      <div className="card overflow-hidden border-amber-200">
+        <div className="px-5 py-4 border-b border-gray-200 flex items-center gap-3 flex-wrap bg-amber-50/60">
+          <XCircle className="w-4 h-4 text-amber-600" />
+          <h2 className="font-semibold text-gray-900 text-sm">
+            Failed Queue {failedLoading ? '(loading...)' : `(${failedQueue.length})`}
+          </h2>
+          <p className="text-[11px] text-gray-500">Resend limit fails wait here — retry next day, queue goes empty ✓</p>
+          <div className="ml-auto flex gap-2">
+            <button onClick={loadFailedQueue} disabled={failedLoading} className="btn-secondary text-xs !py-1.5">
+              {failedLoading ? 'Refreshing...' : 'Refresh'}
+            </button>
+            {failedQueue.length > 0 && (
+              <>
+                <button onClick={exportFailedQueue} className="btn-secondary text-xs !py-1.5 flex items-center gap-1">
+                  <Download className="w-3.5 h-3.5" /> CSV
+                </button>
+                <button onClick={handleClearFailed} disabled={retrying} className="btn-secondary text-xs !py-1.5">
+                  Clear
+                </button>
+                <button onClick={handleRetryAllFailed} disabled={retrying} className="btn-primary text-xs !py-1.5 flex items-center gap-1.5">
+                  {retrying ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  {retrying ? 'Retrying...' : `Retry All (${failedQueue.length})`}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+        {failedQueue.length === 0 && !failedLoading ? (
+          <p className="px-5 py-4 text-xs text-gray-400 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-green-500" /> Queue empty — no pending failed mails. New limit-fails will appear here.
+          </p>
+        ) : (
+          <div className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
+            {failedQueue.slice(0, 200).map((f) => (
+              <div key={f.id} className="flex items-center gap-2 px-5 py-2 text-xs">
+                <XCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                <span className="font-medium text-gray-800 truncate">{f.email}</span>
+                <span className="text-gray-400 truncate hidden sm:inline">· {f.name}</span>
+                {f.error && <span className="text-red-400 truncate flex-1">· {f.error}</span>}
+                {f.campaign_subject && <span className="ml-auto text-[10px] text-gray-400 truncate max-w-[220px] hidden md:inline">{f.campaign_subject}</span>}
+              </div>
+            ))}
+            {failedQueue.length > 200 && (
+              <p className="px-5 py-2 text-[11px] text-gray-400">+ {failedQueue.length - 200} more… export CSV for full list.</p>
+            )}
+          </div>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
         {/* LEFT: compose + audience */}
@@ -640,6 +912,18 @@ export default function CampaignsPage() {
                   </div>
                   <span className="text-xs font-semibold text-green-600">{c.sent_count} sent</span>
                   {c.failed_count > 0 && <span className="text-xs font-semibold text-red-500">{c.failed_count} failed</span>}
+                  {c.failed_count > 0 && (
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); handleRetryCampaign(c.id) }}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); handleRetryCampaign(c.id) } }}
+                      className="text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 flex items-center gap-1"
+                      title="Resend only this campaign's failed mails"
+                    >
+                      {retrying ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />} Retry
+                    </span>
+                  )}
                   <X className={`w-4 h-4 text-gray-300 transition-transform ${expanded === c.id ? '' : 'rotate-45'}`} />
                 </button>
                 {expanded === c.id && (

@@ -308,5 +308,6 @@ export interface CampaignRecipient {
   status: 'sent' | 'failed' | 'skipped'
   error?: string | null
   sent_at: string
+  retried?: boolean
 }
 

@@ -1,26 +1,40 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
-import { Zap } from 'lucide-react'
+import { useAuthStore } from '@/store/authStore'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { user, loading: authLoading } = useAuthStore()
+  const from = (location.state as { from?: string })?.from ?? '/dashboard'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // Already signed in → don't sit on /login, go where they came from.
+  // This also handles deep links: /financial-performance → /login → back.
+  if (!authLoading && user) {
+    return <Navigate to={from} replace />
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setError(error.message)
-    } else {
-      navigate('/dashboard')
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setError(error.message)
+      } else {
+        navigate(from, { replace: true })
+      }
+    } catch (err: any) {
+      setError(err?.message ?? 'Sign in failed. Check your connection and try again.')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (

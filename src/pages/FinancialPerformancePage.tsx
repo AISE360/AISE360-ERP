@@ -37,6 +37,7 @@ export default function FinancialPerformancePage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [bankTxns, setBankTxns] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   // Active Tab: 'services' (Financial Entries) or 'company' (Company Expenses)
   const [activeTab, setActiveTab] = useState<'services' | 'company'>('services')
@@ -61,17 +62,21 @@ export default function FinancialPerformancePage() {
   const [sortBy, setSortBy] = useState<'date' | 'client' | 'charged' | 'balance' | 'profit'>('date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
-  // Load all initial data
+  // Load all initial data — resilient: one failing table (e.g. missing
+  // bank_transactions, RLS denial, offline) must not hang the page forever.
+  // Uses allSettled + a hard timeout so the spinner always resolves.
   const loadData = async () => {
+    setLoading(true)
+    setLoadError(null)
+    let timedOut = false
+    const timeoutId = setTimeout(() => {
+      timedOut = true
+      setLoading(false)
+      setLoadError('Loading is taking too long (network slow or database unreachable). Showing partial data — try Retry.')
+    }, 15000)
+
     try {
-      const [
-        { data: entData },
-        { data: compData },
-        { data: cliData },
-        { data: projData },
-        { data: invData },
-        { data: bankData },
-      ] = await Promise.all([
+      const queries = [
         supabase
           .from('financial_entries')
           .select('*, client:clients(id, company_name, contact_person), project:projects(id, name)')
@@ -84,23 +89,48 @@ export default function FinancialPerformancePage() {
         supabase.from('projects').select('id, name, client_id'),
         supabase.from('invoices').select('*'),
         supabase.from('bank_transactions').select('*').order('sno'),
-      ])
+      ]
+      const results = await Promise.allSettled(queries)
+      if (timedOut) return
 
-      setEntries((entData as any) ?? [])
-      setCompanyExpenses(compData ?? [])
-      setClients(cliData ?? [])
-      setProjects(projData ?? [])
-      setInvoices(invData ?? [])
-      setBankTxns((bankData as any) ?? [])
+      const getData = (i: number) => {
+        const r = results[i]
+        if (r.status === 'fulfilled' && !r.value.error) return r.value.data
+        if (r.status === 'fulfilled' && r.value.error) {
+          console.warn(`FinancialPerformance query[${i}] error:`, r.value.error.message)
+        } else if (r.status === 'rejected') {
+          console.warn(`FinancialPerformance query[${i}] rejected:`, r.reason)
+        }
+        return null
+      }
+
+      setEntries((getData(0) as any) ?? [])
+      setCompanyExpenses(getData(1) ?? [])
+      setClients(getData(2) ?? [])
+      setProjects(getData(3) ?? [])
+      setInvoices(getData(4) ?? [])
+      setBankTxns((getData(5) as any) ?? [])
+
+      const failed = results.filter(
+        r => r.status === 'rejected' || (r.status === 'fulfilled' && (r.value as any)?.error)
+      ).length
+      if (failed > 0 && failed < results.length) {
+        setLoadError('Some sections failed to load (check console / RLS policies). Showing available data.')
+      } else if (failed === results.length) {
+        setLoadError('Could not load financial data. Check your connection and Supabase RLS policies, then Retry.')
+      }
     } catch (err) {
       console.error('Failed to load financial performance data:', err)
+      setLoadError('Failed to load financial data. Check your connection, then Retry.')
     } finally {
-      setLoading(false)
+      clearTimeout(timeoutId)
+      if (!timedOut) setLoading(false)
     }
   }
 
   useEffect(() => {
     loadData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Quick date calculations
@@ -343,14 +373,29 @@ export default function FinancialPerformancePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-72">
+      <div className="flex flex-col items-center justify-center h-72 gap-3">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600" />
+        <p className="text-xs text-gray-400">Loading financial performance…</p>
+        {loadError && (
+          <div className="text-center">
+            <p className="text-xs text-amber-600 mb-2">{loadError}</p>
+            <button onClick={loadData} className="btn-secondary text-xs">Retry</button>
+          </div>
+        )}
       </div>
     )
   }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      {loadError && (
+        <div className="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 text-amber-800 px-4 py-2.5 rounded-lg text-xs">
+          <span>{loadError}</span>
+          <button onClick={loadData} className="font-semibold hover:underline shrink-0">
+            Retry
+          </button>
+        </div>
+      )}
       {/* Top Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { useAuthStore } from '@/store/authStore'
 
 // Auth pages
@@ -33,76 +33,168 @@ import CredentialsPage from '@/pages/CredentialsPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuthStore()
+  const location = useLocation()
+  const [stuck, setStuck] = useState(false)
+
+  // Failsafe: if auth check hangs (slow network / blocked storage /
+  // missing env), never leave the user on an infinite spinner. After 7s
+  // offer a way out; after 10s force-stop loading so the redirect below runs.
+  useEffect(() => {
+    if (!loading) {
+      setStuck(false)
+      return
+    }
+    const warnTimer = setTimeout(() => setStuck(true), 7000)
+    const forceTimer = setTimeout(() => useAuthStore.getState().setLoading(false), 10000)
+    return () => {
+      clearTimeout(warnTimer)
+      clearTimeout(forceTimer)
+    }
+  }, [loading])
+
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-3">
       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-600" />
+      {stuck && (
+        <div className="text-center">
+          <p className="text-sm text-gray-500">Taking too long to verify login…</p>
+          <Link to="/login" state={{ from: location.pathname }} replace className="text-sm text-brand-600 hover:underline font-medium">
+            Go to Login
+          </Link>
+        </div>
+      )}
     </div>
   )
-  if (!user) return <Navigate to="/login" replace />
+  if (!user) return <Navigate to="/login" state={{ from: location.pathname }} replace />
   return <>{children}</>
+}
+
+function CatchAll() {
+  const { user, loading } = useAuthStore()
+  if (loading) return null
+  return <Navigate to={user ? '/dashboard' : '/login'} replace />
+}
+
+async function fetchProfile(userId: string, email: string, fullNameFallback: string) {
+  try {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    if (profile) return profile
+    // Auto-create profile if missing (trigger may have been dropped)
+    const { data: newProfile } = await supabase
+      .from('profiles')
+      .insert({ id: userId, email, full_name: fullNameFallback })
+      .select()
+      .single()
+    return newProfile
+  } catch (err) {
+    console.error('Failed to fetch profile:', err)
+    return null
+  }
+}
+
+// Race any promise against a timeout so a hung Supabase request
+// (offline, blocked third-party storage, bad env) can't hang auth forever.
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+  })
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer!)) as Promise<T>
 }
 
 export default function App() {
   const { setUser, setLoading } = useAuthStore()
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        let { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-        // Auto-create profile if missing (trigger may have been dropped)
-        if (!profile) {
-          const { data: newProfile } = await supabase
-            .from('profiles')
-            .insert({
-              id: session.user.id,
-              email: session.user.email!,
-              full_name: session.user.user_metadata?.full_name ||
-                session.user.email!.split('@')[0],
-            })
-            .select()
-            .single()
-          profile = newProfile
-        }
-        setUser(profile ?? null)
+    let mounted = true
+
+    // Absolute failsafe: never stay in `loading` forever. If Supabase hangs
+    // (offline, blocked storage, missing env on Netlify), force auth
+    // resolution so ProtectedRoute can redirect to /login instead of
+    // spinning infinitely on a deep link like /financial-performance.
+    const failsafe = setTimeout(() => {
+      if (mounted && useAuthStore.getState().loading) {
+        console.warn('Auth init failsafe fired — forcing loading=false')
+        setLoading(false)
       }
-      setLoading(false)
-    })
+    }, 8000)
+
+    const init = async () => {
+      try {
+        if (!isSupabaseConfigured) {
+          // Misconfigured deploy — go straight to login, don't spin.
+          if (mounted) setLoading(false)
+          return
+        }
+        const { data: { session } } = await withTimeout(
+          supabase.auth.getSession(),
+          7000,
+          'getSession'
+        )
+        if (!mounted) return
+        if (session?.user) {
+          const profile = await withTimeout(
+            fetchProfile(
+              session.user.id,
+              session.user.email!,
+              session.user.user_metadata?.full_name || session.user.email!.split('@')[0]
+            ),
+            7000,
+            'fetchProfile'
+          )
+          if (mounted) setUser(profile ?? null)
+        }
+      } catch (err) {
+        console.error('Auth init failed:', err)
+      } finally {
+        if (mounted) {
+          setLoading(false)
+          clearTimeout(failsafe)
+        }
+      }
+    }
+    init()
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        let { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-        // Auto-create profile if missing (trigger may have been dropped)
-        if (!profile) {
-          const { data: newProfile } = await supabase
-            .from('profiles')
-            .insert({
-              id: session.user.id,
-              email: session.user.email!,
-              full_name: session.user.user_metadata?.full_name ||
-                session.user.email!.split('@')[0],
-            })
-            .select()
-            .single()
-          profile = newProfile
+    let subscription: { unsubscribe: () => void } | null = null
+    try {
+      const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        try {
+          if (session?.user) {
+            const profile = await withTimeout(
+              fetchProfile(
+                session.user.id,
+                session.user.email!,
+                session.user.user_metadata?.full_name || session.user.email!.split('@')[0]
+              ),
+              7000,
+              'fetchProfile'
+            )
+            if (mounted) setUser(profile ?? null)
+          } else {
+            if (mounted) setUser(null)
+          }
+        } catch (err) {
+          console.error('Auth state change failed:', err)
+        } finally {
+          if (mounted) setLoading(false)
         }
-        setUser(profile ?? null)
-      } else {
-        setUser(null)
-      }
-      setLoading(false)
-    })
+      })
+      subscription = data.subscription
+    } catch (err) {
+      console.error('Failed to subscribe to auth changes:', err)
+      if (mounted) setLoading(false)
+    }
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      clearTimeout(failsafe)
+      subscription?.unsubscribe()
+    }
   }, [setUser, setLoading])
 
   return (
@@ -136,7 +228,7 @@ export default function App() {
           <Route path="credentials" element={<CredentialsPage />} />
         </Route>
 
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<CatchAll />} />
       </Routes>
     </BrowserRouter>
   )

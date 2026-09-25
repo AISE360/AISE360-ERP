@@ -2,6 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/authStore'
+import '../../styles/fonts.css'
+
+const BG_VIDEO =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260424_064411_9e9d7f84-9277-41f4-ab10-59172d89e6be.mp4'
+const POSTER = 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1600&q=60'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -38,21 +43,60 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
+    <div
+      className="relative flex min-h-screen items-center justify-center overflow-hidden p-4"
+      style={{ fontFamily: 'Inter, sans-serif' }}
+    >
+      {/* Video background */}
+      <video
+        ref={(v) => {
+          if (v) {
+            v.muted = true
+            ;(v as HTMLVideoElement & { disableRemotePlayback?: boolean }).disableRemotePlayback = true
+            v.play().catch(() => {})
+          }
+        }}
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        src={BG_VIDEO}
+        poster={POSTER}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        disableRemotePlayback
+        {...({ 'webkit-playsinline': 'true', 'x5-playsinline': 'true' } as Record<string, string>)}
+      />
+      <div className="absolute inset-0 bg-black/50" />
+
+      {/* Foreground */}
+      <div className="relative z-10 w-full max-w-md text-center">
+        <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-[13px] font-medium text-white shadow-sm backdrop-blur">
+          <span className="h-2 w-2 rounded-full bg-[#ef4d23]" />
+          AISE360 Executive Hub
+        </span>
+        <h1
+          className="mt-4 text-white"
+          style={{ fontSize: 'clamp(30px, 6vw, 44px)', lineHeight: 1.05, fontWeight: 500, letterSpacing: '-0.02em' }}
+        >
+          Welcome{' '}
+          <span style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontWeight: 400 }}>
+            back.
+          </span>
+        </h1>
+
+        <div className="card mt-6 p-6 text-left">
+          <div className="mb-4 flex items-center gap-3">
             <img
               src="/logo.png"
               alt="AISE360 PVT LTD"
-              className="w-16 h-16 object-contain rounded-2xl shadow-sm"
+              className="h-10 w-10 rounded-xl object-contain shadow-sm"
             />
+            <div>
+              <p className="text-sm font-bold text-gray-900">AISE360 PVT LTD</p>
+              <p className="text-xs text-gray-500">Sign in to continue</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-500 mt-1">Sign in to AISE360 PVT LTD</p>
-        </div>
-
-        <div className="card p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
               <div className="bg-red-50 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>

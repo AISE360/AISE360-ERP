@@ -30,6 +30,7 @@ import TeamPage from '@/pages/TeamPage'
 import FinancialPerformancePage from '@/pages/FinancialPerformancePage'
 import IdeasPage from '@/pages/IdeasPage'
 import CredentialsPage from '@/pages/CredentialsPage'
+import LandingPage from '@/pages/LandingPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuthStore()
@@ -205,9 +206,11 @@ export default function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
+        {/* Public landing */}
+        <Route path="/" element={<LandingPage />} />
+
         {/* App */}
-        <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="projects" element={<ProjectsPage />} />
           <Route path="projects/:id" element={<ProjectDetailPage />} />

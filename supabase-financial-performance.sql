@@ -4,10 +4,11 @@
 -- Exact match with your Financial Performance Excel Spreadsheet
 -- ------------------------------------------------------------
 -- ⚠ WARNING (Sep 2026): the live database now contains MANUAL
--- corrections (PEES 12k, re-dated entries, BNI Akurdi expense).
+-- corrections (PEES 12k, DailyDripCafe rename + 15k website, BNI Akurdi,
+-- Aug fees, Good Flippin/Farooque/Zaid/Burger expenses, re-dated entries).
 -- Do NOT re-run sections 4–6 wholesale — the upserts would
 -- overwrite those corrections. For surgical changes use
--- supabase-fix-duplicate.sql instead.
+-- supabase-fix-finance-2026-09-25.sql instead.
 -- Section 0 (projects alignment) is safe to re-run any time.
 -- ============================================================
 
@@ -111,7 +112,7 @@ $$;
 -- ─────────────────────────────────────────
 INSERT INTO clients (id, company_name, contact_person, phone, email, notes)
 VALUES
-  ('11111111-0001-0001-0001-000000000001', 'Jitendra',                 'Jitendra',         '0000000001', 'jitendra@client.com',          'Service: Domains'),
+  ('11111111-0001-0001-0001-000000000001', 'DailyDripCafe',            'Jitendra',         '0000000001', 'info@dailydripcafe.shop',   'Renamed 25/09/26: holder of 8 domains + 8 mailboxes (incl dailydripcafe) | Website: Daily Drip Cafe'),
   ('11111111-0001-0001-0001-000000000002', 'Eleora',                   'Eleora',            '0000000002', 'eleora@client.com',             'Service: Website'),
   ('11111111-0001-0001-0001-000000000003', 'CA Sayed',                 'CA Sayed',          '0000000003', 'casayed@client.com',            'Service: Website + Admin tab'),
   ('11111111-0001-0001-0001-000000000004', 'BM Industries',            'BM Industries',     '0000000004', 'contact@bmmayurindustries.com', 'Mailbox: contact@bmmayurindustries.com'),
@@ -225,10 +226,10 @@ BEGIN
      '11111111-0001-0001-0001-000000000011', NULL,
       'Website', DATE '2026-06-09', 0, 11998, 4799, 'Axis #16: WebsiteDev 40% (NEFT)', founder_id),
 
-    -- 14. PEES Tee group — Website (Expenses: 10000, Charged: 18500, Advance: 7400, Balance: 11100, Profit: 8500)
+    -- 14. PEES Tee group — Website (Expenses: 12000, Charged: 18500, Advance: 7400, Balance: 11100, Profit: 6500)
     ('33333333-0001-0001-0001-000000000014',
      '11111111-0001-0001-0001-000000000012', NULL,
-      'Website', DATE '2026-08-23', 10000, 18500, 7400, '10k given to Farouquee bhai (Axis #44, #51)', founder_id),
+      'Website', DATE '2026-08-23', 12000, 18500, 7400, '12k given to Farooque bhai (Axis #44, #51 10k + #52 2k)', founder_id),
 
     -- 15. Vision Surgical — Domain,mail (Expenses: 2317, Charged: 3297, Advance: 3296, Balance: 1, Profit: 980)
     ('33333333-0001-0001-0001-000000000015',
@@ -238,7 +239,12 @@ BEGIN
     -- 16. Al Barkah — Website (Expenses: 1610, Charged: 49000, Advance: 19625, Balance: 29375, Profit: 47390)
     ('33333333-0001-0001-0001-000000000016',
      '11111111-0001-0001-0001-000000000013', NULL,
-      'Website', DATE '2026-09-03', 1610, 49000, 19625, 'Axis #45-46: NEFT advance + Hostinger', founder_id)
+      'Website', DATE '2026-09-03', 1610, 49000, 19625, 'Axis #45-46: NEFT advance + Hostinger', founder_id),
+
+    -- 17. DailyDripCafe — Website (Expenses: 0, Charged: 15000, Advance: 15000, Balance: 0, Profit: 15000)
+    ('33333333-0001-0001-0001-000000000017',
+     '11111111-0001-0001-0001-000000000001', '22222222-0001-0001-0001-000000000014',
+      'Website', DATE '2026-09-25', 0, 15000, 15000, 'Daily Drip Cafe website upfront Option A - Axis #58 Jyotirlinga 15k', founder_id)
 
   ON CONFLICT (id) DO UPDATE
     SET client_id      = EXCLUDED.client_id,
@@ -289,7 +295,19 @@ BEGIN
     ('44444444-0001-0001-0001-000000000011', DATE '2026-07-16', 'Bank Charges', 'Monthly service charges JUN + GST', 118, 'Axis #26-27', founder_id),
 
     -- 12. Bank Charges: Jul monthly + GST (Axis #42-43)
-    ('44444444-0001-0001-0001-000000000012', DATE '2026-08-21', 'Bank Charges', 'Monthly service charges JUL + GST', 118, 'Axis #42-43', founder_id)
+    ('44444444-0001-0001-0001-000000000012', DATE '2026-08-21', 'Bank Charges', 'Monthly service charges JUL + GST', 118, 'Axis #42-43', founder_id),
+
+    -- 13. BNI Akurdi meet via Dada Bhapkar (Axis #53)
+    ('44444444-0001-0001-0001-000000000013', DATE '2026-09-11', 'Business Meeting', 'BNI Akurdi meet (900 x 4) via Dada Bhapkar', 3600, 'Axis #53 - confirmed', founder_id),
+
+    -- 14. Bank Charges: Aug monthly + GST (Axis #54-55)
+    ('44444444-0001-0001-0001-000000000014', DATE '2026-09-18', 'Bank Charges', 'Monthly service charges AUG + GST', 118, 'Axis #54-55', founder_id),
+
+    -- 15-18. Confirmed 25/09: Good Flippin, Farooque 250, Zaid 490, Burger 440
+    ('44444444-0001-0001-0001-000000000015', DATE '2026-09-03', 'Food/Travel', 'Good Flippin Burgers - business food', 1759, 'Axis #48 - confirmed', founder_id),
+    ('44444444-0001-0001-0001-000000000016', DATE '2026-09-03', 'Miscellaneous', 'Farooque 250', 250, 'Axis #49 - confirmed', founder_id),
+    ('44444444-0001-0001-0001-000000000017', DATE '2026-09-20', 'Miscellaneous', 'Zaid transfer 490', 490, 'Axis #56 - confirmed', founder_id),
+    ('44444444-0001-0001-0001-000000000018', DATE '2026-09-21', 'Food/Travel', 'Burger 440', 440, 'Axis #57 - confirmed', founder_id)
 
   ON CONFLICT (id) DO UPDATE
     SET category    = EXCLUDED.category,
@@ -301,23 +319,25 @@ END;
 $$;
 
 -- ─────────────────────────────────────────
--- SUMMARY VERIFICATION (matches Spreadsheet + Axis statement)
+-- SUMMARY VERIFICATION (matches Spreadsheet + Axis statement 25/09/26)
 -- ─────────────────────────────────────────
--- Total Charged  : ₹1,60,795 (unchanged)
--- Total Advance  : ₹81,220   (₹48,420 in Axis + ₹32,800 pre-bank-account)
--- Total Balance  : ₹79,575   (unchanged)
--- Service Expense: ₹26,812   (₹15,935 in Axis + ₹10,877 pre-bank-account)
--- Company Expense: ₹28,332   (₹27,565 sheet + ₹767 Axis bank charges)
--- Total Expense  : ₹55,144
--- Gross Profit   : ₹1,33,983 (Charged - Service Expense)
--- Net Profit     : ₹1,05,651 (Gross - Company Expense)
--- Book In-Hand   : ₹26,076   (Advance - Total Expense)
+-- Total Charged  : ₹1,75,795 (160795 + DailyDrip 15000)
+-- Total Advance  : ₹96,220   (81220 + DailyDrip 15000)
+-- Total Balance  : ₹79,575   (175795 - 96220)
+-- Service Expense: ₹28,812   (26812 + PEES +2000; Vision locked 2317)
+-- Company Expense: ₹34,989   (28332 + BNI 3600 + Aug 118 + 1759 + 250 + 490 + 440)
+-- Total Expense  : ₹63,801
+-- Gross Profit   : ₹1,46,983 (Charged - Service Expense)
+-- Net Profit     : ₹1,11,994 (Gross - Company Expense)
+-- Book In-Hand   : ₹32,419   (Advance - Total Expense)
 --
--- BANK BRIDGE (Book 26,076 -> Axis closing 26,839.76, diff +763.76):
---   +767.00  bank fees (booked as expense AND paid from Axis)
---   - 11.80  capital net (50,000 in - 50,011.80 transferred to Kotak)
---   -  7.44  paise + tentative deltas (+1 adv, -2.54 svc, -5.90 #8/#9)
---   + 16.00  pass-through pairs net vs pre-bank rounding
---   = 26,839.76 EXACT (after confirming #8 = Return Filing, #9 = meet 700)
--- Full line-by-line map: supabase-bank-statement.sql
+-- BANK BRIDGE (Book 32,419 -> Axis closing 40,571.76, diff +8,152.76):
+--   +967.00  pre-bank net (frozen Jan-11Mar history)
+--   +5,168   capital/personal net (shareholder 5000 + pass-through singles +180,
+--            opening 50k trio net -11.80 included but flagged EXCLUDED)
+--   +3,951   cash sheet costs with no Axis trace (Business meet 1950 + Food travel 2009)
+--            + paise/tentative deltas (+1 Vision adv, +1.62 Vision svc, +0.04 Al Barkah, +5.90 Return Filing)
+--   = 40,571.76 (Vision mail-only locked 3297/3296/2317; Shail extras excluded)
+-- Full line-by-line map: supabase-bank-statement.sql (59 rows)
+-- Live apply: supabase-fix-finance-2026-09-25.sql
 -- ─────────────────────────────────────────

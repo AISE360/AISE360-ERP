@@ -42,7 +42,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   unclassified: 'Needs Review',
 }
 
-const STATEMENT_CLOSING = 26839.76
+const STATEMENT_CLOSING = 40571.76
 
 export default function ReconciliationPage() {
   const [txns, setTxns] = useState<BankTxn[]>([])
@@ -112,7 +112,7 @@ export default function ReconciliationPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Bank Reconciliation</h1>
-          <p className="text-xs text-gray-500">Axis A/c 925020049305366 · 01/01/2026 – 16/09/2026 · every line mapped to the books</p>
+          <p className="text-xs text-gray-500">Axis A/c 925020049305366 · 01/01/2026 – 25/09/2026 · every line mapped to the books</p>
         </div>
       </div>
 

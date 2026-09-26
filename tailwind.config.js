@@ -5,25 +5,46 @@ export default {
     extend: {
       colors: {
         brand: {
-          50:  '#f0f4ff',
-          100: '#e0e9ff',
-          200: '#c7d6fe',
-          300: '#a5b8fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
+          50:  '#eef4ff',
+          100: '#dce7fd',
+          200: '#c3d5fc',
+          300: '#9bb8fa',
+          400: '#6a8ff7',
+          500: '#3f66f0',
+          600: '#2447e0',
+          700: '#1d39b4',
+          800: '#1e3291',
+          900: '#1f2f5e',
+        },
+        sunny: {
+          DEFAULT: '#ffc929',
+          soft: '#ffe9a8',
+        },
+        cobalt: {
+          DEFAULT: '#2447e0',
+          dark: '#1d39b4',
+        },
+        bubblegum: {
+          DEFAULT: '#f7739d',
+          soft: '#ffd3e2',
+        },
+        cream: {
+          DEFAULT: '#fff7e0',
+          dark: '#f5f2ee',
+        },
+        ink: {
+          DEFAULT: '#161d38',
+          soft: '#3c4568',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Nunito', 'system-ui', 'sans-serif'],
+        display: ['"Bricolage Grotesque"', 'Nunito', 'sans-serif'],
       },
       boxShadow: {
-        card: '0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04)',
-        'card-hover': '0 12px 24px -6px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.04)',
-        'brand-glow': '0 0 25px -5px rgba(79, 70, 229, 0.3)',
+        card: '4px 4px 0 0 #161d38',
+        'card-hover': '6px 6px 0 0 #161d38',
+        pop: '2px 2px 0 0 #161d38',
       },
       keyframes: {
         fadeIn: {

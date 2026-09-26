@@ -12,11 +12,11 @@ export default function Header({ onMenuClick }: Props) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   return (
-    <header className="h-20 bg-white border-b border-gray-200/80 flex items-center justify-between px-6 shrink-0 z-10">
+    <header className="h-20 bg-[#fffdf6] border-b-2 border-ink flex items-center justify-between px-6 shrink-0 z-10">
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuClick}
-          className="p-2 rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+          className="p-2 rounded-xl text-ink-soft hover:text-ink hover:bg-cream-dark transition-colors"
           title="Toggle Navigation"
         >
           <Menu className="w-5 h-5" />
@@ -41,7 +41,7 @@ export default function Header({ onMenuClick }: Props) {
 
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-700 to-brand-500 flex items-center justify-center text-white text-xs font-bold shadow-sm hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-150"
+          className="w-10 h-10 rounded-xl bg-cobalt border-2 border-ink shadow-pop flex items-center justify-center text-white text-xs font-extrabold hover:-translate-y-0.5 hover:rotate-3 active:translate-y-0 transition-all duration-150"
         >
           {user?.full_name ? getInitials(user.full_name) : <User className="w-4 h-4" />}
         </button>
@@ -49,7 +49,7 @@ export default function Header({ onMenuClick }: Props) {
         {dropdownOpen && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
-            <div className="absolute right-0 top-14 bg-white border border-gray-200/80 rounded-2xl shadow-xl z-20 w-56 py-2 animate-scale-in">
+            <div className="absolute right-0 top-14 bg-white border-2 border-ink rounded-2xl shadow-card z-20 w-56 py-2 animate-scale-in">
               <div className="px-4 py-2.5 border-b border-gray-100">
                 <p className="text-sm font-bold text-gray-900 leading-tight">{user?.full_name}</p>
                 <p className="text-xs text-gray-400 truncate mt-0.5">{user?.email}</p>

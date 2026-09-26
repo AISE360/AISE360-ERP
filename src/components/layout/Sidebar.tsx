@@ -83,27 +83,27 @@ export default function Sidebar({ open, onClose }: Props) {
 
       <aside
         className={cn(
-          'fixed lg:static inset-y-0 left-0 z-40 flex flex-col w-64 bg-white border-r border-gray-200/90 shadow-sm transition-all duration-300 ease-in-out',
+          'fixed lg:static inset-y-0 left-0 z-40 flex flex-col w-64 bg-[#fffdf6] border-r-2 border-ink shadow-sm transition-all duration-300 ease-in-out',
           open
             ? 'translate-x-0'
             : '-translate-x-full lg:translate-x-0 lg:w-0 lg:overflow-hidden'
         )}
       >
         {/* Scaled-up & zoomed header logo */}
-        <div className="flex items-center justify-between px-5 h-20 border-b border-gray-100 shrink-0 bg-gradient-to-b from-white to-gray-50/50">
+        <div className="flex items-center justify-between px-5 h-20 border-b-2 border-ink/10 shrink-0 bg-sunny/25">
           <div className="flex items-center gap-3 min-w-0">
             <div className="relative">
               <img
                 src="/logo.png"
                 alt="AISE360 PVT LTD"
-                className="w-11 h-11 rounded-xl object-contain shadow-sm border border-gray-200/60 bg-white p-0.5 hover:scale-105 transition-transform duration-200"
+                className="w-11 h-11 rounded-xl object-contain border-2 border-ink bg-white p-0.5 shadow-pop hover:scale-105 hover:-rotate-3 transition-transform duration-200"
               />
             </div>
             <div className="min-w-0">
-              <h1 className="font-bold text-gray-900 text-[14px] leading-tight tracking-tight truncate">
+              <h1 className="font-bold text-ink text-[14px] leading-tight tracking-tight truncate font-display">
                 AISE360 PVT LTD
               </h1>
-              <p className="text-[10px] font-semibold text-brand-600 uppercase tracking-wider mt-0.5">
+              <p className="text-[10px] font-extrabold text-cobalt uppercase tracking-wider mt-0.5">
                 Executive Hub
               </p>
             </div>
@@ -132,10 +132,10 @@ export default function Sidebar({ open, onClose }: Props) {
                     to={item.to}
                     className={({ isActive }) =>
                       cn(
-                        'group flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-200 ease-out',
+                        'group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 ease-out border-2',
                         isActive
-                          ? 'bg-gradient-to-r from-brand-50 to-brand-100/50 text-brand-700 font-semibold shadow-sm border-l-4 border-brand-600'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 hover:translate-x-1'
+                          ? 'bg-sunny text-ink border-ink shadow-pop'
+                          : 'text-ink-soft border-transparent hover:text-ink hover:bg-cream-dark hover:translate-x-1'
                       )
                     }
                   >
@@ -145,7 +145,7 @@ export default function Sidebar({ open, onClose }: Props) {
                     </div>
 
                     {item.badge ? (
-                      <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-600 text-white shadow-sm">
+                      <span className="sticker sticker-pink -rotate-6">
                         {item.badge}
                       </span>
                     ) : (
@@ -159,10 +159,10 @@ export default function Sidebar({ open, onClose }: Props) {
         </nav>
 
         {/* Bottom Status Card */}
-        <div className="p-3 border-t border-gray-100 bg-gray-50/50">
-          <div className="flex items-center gap-2.5 p-2 rounded-lg bg-white border border-gray-200/60 shadow-sm">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[11px] font-medium text-gray-600 truncate">
+        <div className="p-3 border-t-2 border-ink/10 bg-cream-dark/60">
+          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white border-2 border-ink shadow-pop">
+            <div className="w-2.5 h-2.5 rounded-full bg-cobalt animate-pulse shrink-0" />
+            <span className="text-[11px] font-extrabold text-ink truncate">
               System Online & Synced
             </span>
           </div>

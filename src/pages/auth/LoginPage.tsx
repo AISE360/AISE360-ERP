@@ -85,7 +85,10 @@ export default function LoginPage() {
           </span>
         </h1>
 
-        <div className="card mt-6 p-6 text-left">
+        <div className="card mt-6 p-6 text-left relative">
+          <span className="sticker sticker-pink rotate-3 absolute -top-3 right-6">
+            Secure login
+          </span>
           <div className="mb-4 flex items-center gap-3">
             <img
               src="/logo.png"

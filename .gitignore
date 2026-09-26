@@ -5,3 +5,6 @@ dist
 *.local
 supabase/.temp
 .temp
+
+# Local copies (never commit)
+aise360 erp/

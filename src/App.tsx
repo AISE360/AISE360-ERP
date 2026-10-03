@@ -75,7 +75,7 @@ function CatchAll() {
   return <Navigate to={user ? '/dashboard' : '/login'} replace />
 }
 
-async function fetchProfile(userId: string, email: string, fullNameFallback: string) {
+async function fetchProfile(userId: string, fallback: { email?: string | null; phone?: string | null; fullName: string }) {
   try {
     const { data: profile } = await supabase
       .from('profiles')
@@ -86,13 +86,24 @@ async function fetchProfile(userId: string, email: string, fullNameFallback: str
     // Auto-create profile if missing (trigger may have been dropped)
     const { data: newProfile } = await supabase
       .from('profiles')
-      .insert({ id: userId, email, full_name: fullNameFallback })
+      .insert({ id: userId, email: fallback.email ?? null, phone: fallback.phone ?? null, full_name: fallback.fullName })
       .select()
       .single()
     return newProfile
   } catch (err) {
     console.error('Failed to fetch profile:', err)
     return null
+  }
+}
+
+function profileFallback(u: { email?: string | null; phone?: string | null; user_metadata?: Record<string, any> }) {
+  return {
+    email: u.email ?? null,
+    phone: u.phone ?? null,
+    fullName:
+      (u.user_metadata?.full_name as string | undefined) ||
+      u.phone ||
+      (u.email ? u.email.split('@')[0] : 'Founder'),
   }
 }
 
@@ -138,11 +149,7 @@ export default function App() {
         if (!mounted) return
         if (session?.user) {
           const profile = await withTimeout(
-            fetchProfile(
-              session.user.id,
-              session.user.email!,
-              session.user.user_metadata?.full_name || session.user.email!.split('@')[0]
-            ),
+            fetchProfile(session.user.id, profileFallback(session.user as any)),
             7000,
             'fetchProfile'
           )
@@ -166,11 +173,7 @@ export default function App() {
         try {
           if (session?.user) {
             const profile = await withTimeout(
-              fetchProfile(
-                session.user.id,
-                session.user.email!,
-                session.user.user_metadata?.full_name || session.user.email!.split('@')[0]
-              ),
+              fetchProfile(session.user.id, profileFallback(session.user as any)),
               7000,
               'fetchProfile'
             )

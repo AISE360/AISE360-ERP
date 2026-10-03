@@ -52,7 +52,7 @@ export default function Header({ onMenuClick }: Props) {
             <div className="absolute right-0 top-14 bg-white border-2 border-ink rounded-2xl shadow-card z-20 w-56 py-2 animate-scale-in">
               <div className="px-4 py-2.5 border-b border-gray-100">
                 <p className="text-sm font-bold text-gray-900 leading-tight">{user?.full_name}</p>
-                <p className="text-xs text-gray-400 truncate mt-0.5">{user?.email}</p>
+                <p className="text-xs text-gray-400 truncate mt-0.5">{user?.phone ?? user?.email ?? ''}</p>
               </div>
 
               <div className="py-1">

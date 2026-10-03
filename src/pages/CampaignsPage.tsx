@@ -365,12 +365,13 @@ export default function CampaignsPage() {
     audience.filter((m) => selected.has(m.key)).map((m) => ({ name: m.name, email: m.email, company: m.company }))
 
   const handleTest = async () => {
-    if (!user?.email) { alert('Your login email is unknown - cannot send test.'); return }
+    const selfEmail = (user as any)?.email as string | undefined
+    if (!selfEmail) { alert('Your profile has no email (OTP phone login) - cannot send test mail.'); return }
     if (!validateBeforeSend()) return
     setTesting(true)
     try {
       const data = await callFunction(buildPayload(
-        [{ name: 'there', email: user.email, company: 'AISE 360 (test)' }],
+        [{ name: 'there', email: selfEmail, company: 'AISE 360 (test)' }],
         `[TEST] ${subject}`,
       ))
       showToast(data.sent === 1 ? 'Test mail sent to your inbox ✓' : `Test finished: ${data.sent} sent, ${data.failed} failed`)

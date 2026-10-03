@@ -2,7 +2,8 @@ export type UserRole = 'founder' | 'admin'
 
 export interface Profile {
   id: string
-  email: string
+  email?: string | null
+  phone?: string | null
   full_name: string
   avatar_url?: string
   role: UserRole

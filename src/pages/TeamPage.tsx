@@ -58,7 +58,7 @@ export default function TeamPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900">{member.full_name}</h3>
-                  <p className="text-sm text-gray-500">{member.email}</p>
+                  <p className="text-sm text-gray-500">{member.phone ?? member.email}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className={`badge text-xs ${todayLog ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                       {todayLog ? '✓ Active today' : '○ No log today'}

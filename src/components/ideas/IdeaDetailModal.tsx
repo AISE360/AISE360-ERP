@@ -11,7 +11,7 @@ interface Props {
 
 export default function IdeaDetailModal({ idea, onClose, onEdit, onDelete }: Props) {
   const creatorName = idea.creator?.full_name || 'Founder'
-  const creatorEmail = idea.creator?.email
+  const creatorEmail = idea.creator?.phone ?? idea.creator?.email
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">

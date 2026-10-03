@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '@/lib/utils'
 import { ArrowLeft, Plus, Edit, Trash2, IndianRupee, Calculator, TrendingUp } from 'lucide-react'
 import type { Project, Task, Client, Expense, FinancialEntry } from '@/types'
+import { useIsPrivileged } from '@/store/authStore'
 import ProjectModal from '@/components/projects/ProjectModal'
 import TaskModal from '@/components/tasks/TaskModal'
 import FinancialEntryModal from '@/components/finance/FinancialEntryModal'
@@ -19,6 +20,8 @@ export default function ProjectDetailPage() {
   const [showTaskModal, setShowTaskModal] = useState(false)
   const [showFinancialModal, setShowFinancialModal] = useState(false)
   const [loading, setLoading] = useState(true)
+  // Employees don't see money (RLS also returns [] for these queries).
+  const privileged = useIsPrivileged()
 
   const load = async () => {
     const [{ data: proj }, { data: t }, { data: exp }, { data: cli }, { data: fe }] = await Promise.all([
@@ -73,7 +76,8 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      {/* Finance Summary */}
+      {/* Finance Summary (founders/admins only) */}
+      {privileged && (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Total Budget', value: formatCurrency(project.budget ?? 0), color: 'text-gray-900' },
@@ -87,6 +91,7 @@ export default function ProjectDetailPage() {
           </div>
         ))}
       </div>
+      )}
 
       {project.description && (
         <div className="card p-5">
@@ -130,7 +135,8 @@ export default function ProjectDetailPage() {
           </div>
         </div>
 
-        {/* Expenses */}
+        {/* Expenses (founders/admins only) */}
+        {privileged && (
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -152,9 +158,11 @@ export default function ProjectDetailPage() {
             {expenses.length === 0 && <p className="text-sm text-gray-400">No expenses logged</p>}
           </div>
         </div>
+        )}
       </div>
 
-      {/* Financial Performance Services for this Project */}
+      {/* Financial Performance Services for this Project (founders/admins only) */}
+      {privileged && (
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -222,6 +230,7 @@ export default function ProjectDetailPage() {
           </div>
         )}
       </div>
+      )}
 
       {showEditModal && (
         <ProjectModal

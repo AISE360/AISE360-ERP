@@ -137,6 +137,17 @@ export default function LoginPage() {
           },
           { onConflict: 'id' }
         )
+        // Log the sign-in so contact@aise.com gets an alert email.
+        // Best-effort: never block login if this fails.
+        try {
+          await supabase.from('login_events').insert({
+            user_id: data.user.id,
+            email,
+            phone: e164,
+          })
+        } catch {
+          /* alert is best-effort */
+        }
         navigate(from, { replace: true })
       }
     } catch (err: any) {

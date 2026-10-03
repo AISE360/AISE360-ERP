@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore, isPrivilegedRole } from '@/store/authStore'
 
 // Auth pages
 import LoginPage from '@/pages/auth/LoginPage'
@@ -73,6 +73,14 @@ function CatchAll() {
   const { user, loading } = useAuthStore()
   if (loading) return null
   return <Navigate to={user ? '/dashboard' : '/login'} replace />
+}
+
+// Employees get bounced to /dashboard if they guess a finance URL.
+// (Only reached after ProtectedRoute, so `user` is loaded here.)
+function RequirePrivileged({ children }: { children: React.ReactNode }) {
+  const { user } = useAuthStore()
+  if (!user || !isPrivilegedRole(user.role)) return <Navigate to="/dashboard" replace />
+  return <>{children}</>
 }
 
 async function fetchProfile(userId: string, fallback: { email?: string | null; phone?: string | null; fullName: string }) {
@@ -217,18 +225,18 @@ export default function App() {
           <Route path="tasks" element={<TasksPage />} />
           <Route path="daily-log" element={<DailyLogPage />} />
           <Route path="clients" element={<ClientsPage />} />
-          <Route path="finance" element={<FinancePage />} />
-          <Route path="financial-performance" element={<FinancialPerformancePage />} />
-          <Route path="expenses" element={<ExpensesPage />} />
-          <Route path="invoices" element={<InvoicesPage />} />
+          <Route path="finance" element={<RequirePrivileged><FinancePage /></RequirePrivileged>} />
+          <Route path="financial-performance" element={<RequirePrivileged><FinancialPerformancePage /></RequirePrivileged>} />
+          <Route path="expenses" element={<RequirePrivileged><ExpensesPage /></RequirePrivileged>} />
+          <Route path="invoices" element={<RequirePrivileged><InvoicesPage /></RequirePrivileged>} />
           <Route path="follow-ups" element={<FollowUpsPage />} />
           <Route path="networking" element={<NetworkingPage />} />
           <Route path="bni" element={<BNIPage />} />
           <Route path="campaigns" element={<CampaignsPage />} />
-          <Route path="reconciliation" element={<ReconciliationPage />} />
+          <Route path="reconciliation" element={<RequirePrivileged><ReconciliationPage /></RequirePrivileged>} />
           <Route path="team" element={<TeamPage />} />
           <Route path="ideas" element={<IdeasPage />} />
-          <Route path="credentials" element={<CredentialsPage />} />
+          <Route path="credentials" element={<RequirePrivileged><CredentialsPage /></RequirePrivileged>} />
         </Route>
 
         <Route path="*" element={<CatchAll />} />

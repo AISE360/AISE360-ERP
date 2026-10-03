@@ -4,9 +4,11 @@ import { supabase } from '@/lib/supabase'
 import { formatCurrency, formatDate, getStatusColor, getPriorityColor } from '@/lib/utils'
 import { Plus, Search, FolderKanban } from 'lucide-react'
 import type { Project, Client } from '@/types'
+import { useIsPrivileged } from '@/store/authStore'
 import ProjectModal from '@/components/projects/ProjectModal'
 
 export default function ProjectsPage() {
+  const privileged = useIsPrivileged()
   const [projects, setProjects] = useState<Project[]>([])
   const [clients, setClients] = useState<Client[]>([])
   const [search, setSearch] = useState('')
@@ -91,20 +93,24 @@ export default function ProjectsPage() {
                 )}
 
                 <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                  <div>
-                    <p className="text-gray-400">Budget</p>
-                    <p className="font-semibold text-gray-800">{formatCurrency(project.budget ?? 0)}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400">Received</p>
-                    <p className="font-semibold text-green-600">{formatCurrency(project.upfront_received ?? 0)}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400">Pending</p>
-                    <p className={`font-semibold ${remaining > 0 ? 'text-yellow-600' : 'text-gray-400'}`}>
-                      {formatCurrency(remaining)}
-                    </p>
-                  </div>
+                  {privileged && (
+                    <>
+                      <div>
+                        <p className="text-gray-400">Budget</p>
+                        <p className="font-semibold text-gray-800">{formatCurrency(project.budget ?? 0)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">Received</p>
+                        <p className="font-semibold text-green-600">{formatCurrency(project.upfront_received ?? 0)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">Pending</p>
+                        <p className={`font-semibold ${remaining > 0 ? 'text-yellow-600' : 'text-gray-400'}`}>
+                          {formatCurrency(remaining)}
+                        </p>
+                      </div>
+                    </>
+                  )}
                   <div>
                     <p className="text-gray-400">Deadline</p>
                     <p className="font-semibold text-gray-800">

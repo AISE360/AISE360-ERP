@@ -20,6 +20,7 @@ import {
   Landmark,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useAuthStore, isPrivilegedRole } from '@/store/authStore'
 
 interface NavSection {
   title: string
@@ -71,6 +72,15 @@ interface Props {
 }
 
 export default function Sidebar({ open, onClose }: Props) {
+  // Employees don't see money: hide the whole FINANCIALS section + Credentials.
+  // (Supabase RLS blocks the underlying tables too — this is just the nav layer.)
+  const privileged = useAuthStore((s) => isPrivilegedRole(s.user?.role))
+  const visibleSections = navSections
+    .filter((section) => privileged || section.title !== 'FINANCIALS')
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => privileged || item.to !== '/credentials'),
+    }))
   return (
     <>
       {/* Mobile backdrop */}
@@ -118,7 +128,7 @@ export default function Sidebar({ open, onClose }: Props) {
 
         {/* Navigation Sections */}
         <nav className="flex-1 overflow-y-auto py-5 px-3 space-y-6">
-          {navSections.map(section => (
+          {visibleSections.map(section => (
             <div key={section.title} className="space-y-1">
               <p className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 select-none">
                 {section.title}

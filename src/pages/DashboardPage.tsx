@@ -7,6 +7,7 @@ import {
   TrendingUp, AlertCircle, Activity
 } from 'lucide-react'
 import type { Project, DailyLog, Profile, Task } from '@/types'
+import { useIsPrivileged } from '@/store/authStore'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 export default function DashboardPage() {
@@ -21,6 +22,8 @@ export default function DashboardPage() {
   } | null>(null)
   const [ideasCount, setIdeasCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
+  // Employees never see money on the dashboard (RLS also blocks the queries).
+  const privileged = useIsPrivileged()
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -89,6 +92,7 @@ export default function DashboardPage() {
         <Link
           to="/financial-performance"
           className="btn-secondary text-xs flex items-center gap-1.5"
+          style={privileged ? undefined : { display: 'none' }}
         >
           <TrendingUp className="w-3.5 h-3.5 text-brand-600" /> Financial Performance →
         </Link>
@@ -98,12 +102,12 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Active Projects', value: activeProjects, icon: FolderKanban, color: 'text-brand-600', bg: 'bg-brand-50' },
-          { label: 'Total Revenue', value: formatCurrency(totalRevenue), icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
-          { label: 'Pending Amount', value: formatCurrency(pendingAmount), icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-50' },
+          { label: 'Total Revenue', value: privileged ? formatCurrency(totalRevenue) : '—', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-50' },
+          { label: 'Pending Amount', value: privileged ? formatCurrency(pendingAmount) : '—', icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-50' },
           {
-            label: financials ? 'Net Business Profit' : 'Completed Projects',
-            value: financials ? formatCurrency(financials.netProfit) : completedProjects,
-            icon: financials ? TrendingUp : CheckCircle,
+            label: privileged && financials ? 'Net Business Profit' : 'Completed Projects',
+            value: privileged && financials ? formatCurrency(financials.netProfit) : completedProjects,
+            icon: privileged && financials ? TrendingUp : CheckCircle,
             color: financials && financials.netProfit < 0 ? 'text-red-600' : 'text-blue-600',
             bg: financials && financials.netProfit < 0 ? 'bg-red-50' : 'bg-blue-50',
           },
@@ -237,8 +241,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Revenue Chart */}
-      {revenueData.length > 0 && (
+      {/* Revenue Chart (founders/admins only) */}
+      {privileged && revenueData.length > 0 && (
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-4 h-4 text-brand-600" />

@@ -20,3 +20,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null })
   },
 }))
+
+// Founders + admins see everything (finance, expenses, credentials).
+// Employees only see operational screens; finance tables are also
+// locked for them by Supabase RLS, so this is just the UI layer.
+export function isPrivilegedRole(role?: string | null): boolean {
+  return role === 'founder' || role === 'admin'
+}
+
+export function useIsPrivileged(): boolean {
+  return useAuthStore((s) => isPrivilegedRole(s.user?.role))
+}

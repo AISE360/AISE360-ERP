@@ -6,6 +6,7 @@ import {
   TrendingUp, DollarSign, ArrowUpRight, Calculator, KeyRound
 } from 'lucide-react'
 import type { Client, FinancialEntry } from '@/types'
+import { useIsPrivileged } from '@/store/authStore'
 import ClientCredentialsModal from '@/components/credentials/ClientCredentialsModal'
 
 type FollowUpItem = {
@@ -17,6 +18,8 @@ type FollowUpItem = {
 }
 
 export default function ClientsPage() {
+  // Employees don't see client money or the password vault (RLS blocks it too).
+  const privileged = useIsPrivileged()
   const [clients, setClients] = useState<Client[]>([])
   const [financialEntries, setFinancialEntries] = useState<FinancialEntry[]>([])
   const [selectedClientFinancials, setSelectedClientFinancials] = useState<Client | null>(null)
@@ -205,8 +208,8 @@ export default function ClientsPage() {
               <p className="mt-3 text-xs text-gray-500 bg-gray-50 p-2 rounded-lg line-clamp-2">{client.notes}</p>
             )}
 
-            {/* Financial Performance Summary */}
-            {(() => {
+            {/* Financial Performance Summary (founders/admins only) */}
+            {privileged && (() => {
               const cEntries = financialEntries.filter(fe => fe.client_id === client.id)
               const cCharged = cEntries.reduce((s, e) => s + Number(e.charged_amount), 0)
               const cAdvance = cEntries.reduce((s, e) => s + Number(e.advance_amount), 0)
@@ -249,6 +252,7 @@ export default function ClientsPage() {
             })()}
 
             <div className="grid grid-cols-2 gap-2 mt-3">
+              {privileged && (
               <button
                 onClick={() => setSelectedClientCredentials(client)}
                 className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-brand-200 bg-brand-50/80 text-brand-700 hover:bg-brand-100 transition-colors text-xs font-semibold"
@@ -257,6 +261,7 @@ export default function ClientsPage() {
                 <KeyRound className="w-3.5 h-3.5 text-brand-600" />
                 Vault ({credCountByClient[client.id] || 0})
               </button>
+              )}
               <button
                 onClick={() => openNotice(client)}
                 className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-xs font-semibold"
@@ -417,8 +422,8 @@ export default function ClientsPage() {
         </div>
       )}
 
-      {/* Client Financial Performance Breakdown Modal */}
-      {selectedClientFinancials && (() => {
+      {/* Client Financial Performance Breakdown Modal (founders/admins only) */}
+      {privileged && selectedClientFinancials && (() => {
         const clientEntries = financialEntries.filter(fe => fe.client_id === selectedClientFinancials.id)
         const totalCharged = clientEntries.reduce((s, e) => s + Number(e.charged_amount), 0)
         const totalAdvance = clientEntries.reduce((s, e) => s + Number(e.advance_amount), 0)
@@ -539,8 +544,8 @@ export default function ClientsPage() {
         )
       })()}
 
-      {/* Client Credentials Vault Modal */}
-      {selectedClientCredentials && (
+      {/* Client Credentials Vault Modal (founders/admins only) */}
+      {privileged && selectedClientCredentials && (
         <ClientCredentialsModal
           isOpen={Boolean(selectedClientCredentials)}
           onClose={() => setSelectedClientCredentials(null)}

@@ -9,13 +9,29 @@ const BG_VIDEO =
 const POSTER = 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1600&q=60'
 
 // Normalize Indian 10-digit numbers to E.164, pass through +E.164 as-is.
+// Empty input stays empty (mobile is optional — saved to profile only).
 function toE164(raw: string): string | null {
-  const t = raw.replace(/[\s-]/g, '')
+  const t = raw.trim().replace(/[\s-]/g, '')
+  if (!t) return null
   if (/^\+\d{7,15}$/.test(t)) return t
   const digits = t.replace(/\D/g, '')
   if (digits.length === 10) return `+91${digits}`
   if (digits.length === 12 && digits.startsWith('91')) return `+${digits}`
   return null
+}
+
+// Supabase Auth sometimes returns an empty `{}` body on SMS/provider 500s.
+// Never show raw `{}` to the user — map it to something actionable.
+function friendlySendError(message: string): string {
+  const m = (message || '').trim()
+  if (!m || m === '{}') {
+    return 'Could not send the code (auth server error). Phone-SMS is not set up yet — use email OTP instead, or ask the admin to add an SMS sender in Supabase.'
+  }
+  const low = m.toLowerCase()
+  if (low.includes('phone provider') || low.includes('sms') || low.includes('sender') || low.includes('twilio')) {
+    return `${m} — Phone-SMS is not set up yet. Use email OTP instead, or ask the admin to add a Twilio sender number in Supabase Auth → SMS settings.`
+  }
+  return m
 }
 
 export default function LoginPage() {
@@ -24,8 +40,9 @@ export default function LoginPage() {
   const { user, loading: authLoading } = useAuthStore()
   const from = (location.state as { from?: string })?.from ?? '/dashboard'
 
-  const [step, setStep] = useState<'phone' | 'otp'>('phone')
+  const [step, setStep] = useState<'details' | 'otp'>('details')
   const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
@@ -47,41 +64,42 @@ export default function LoginPage() {
     e?.preventDefault()
     setError('')
     setInfo('')
-    const e164 = toE164(phone)
+    const cleanEmail = email.trim().toLowerCase()
     if (!fullName.trim()) {
       setError('Please enter your name.')
       return
     }
-    if (!e164) {
-      setError('Enter a valid phone number (10-digit mobile or +country code).')
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      setError('Enter a valid email address — the OTP will arrive there.')
       return
+    }
+    let e164: string | null = null
+    if (phone.trim()) {
+      e164 = toE164(phone)
+      if (!e164) {
+        setError('Mobile looks invalid (10-digit mobile or +country code) — fix it or leave it blank.')
+        return
+      }
     }
     setLoading(true)
     try {
       const { error } = await supabase.auth.signInWithOtp({
-        phone: e164,
+        email: cleanEmail,
         options: {
-          data: { full_name: fullName.trim() },
-          channel: 'sms',
+          data: { full_name: fullName.trim(), phone: e164 },
         },
       })
       if (error) {
-        setError(
-          error.message +
-            (error.message.toLowerCase().includes('provider') ||
-            error.message.toLowerCase().includes('sms') ||
-            error.message.toLowerCase().includes('sender')
-              ? ' — Ask admin to add the Twilio sender number in Supabase Auth → SMS settings.'
-              : '')
-        )
+        setError(friendlySendError(error.message))
       } else {
-        setPhone(e164)
+        setEmail(cleanEmail)
+        if (e164) setPhone(e164)
         setStep('otp')
         setCooldown(30)
-        setInfo(`OTP sent to ${e164}. Enter the 6-digit code.`)
+        setInfo(`OTP sent to ${cleanEmail}. Enter the 6-digit code.`)
       }
     } catch (err: any) {
-      setError(err?.message ?? 'Failed to send OTP. Check connection and try again.')
+      setError(friendlySendError(err?.message ?? ''))
     } finally {
       setLoading(false)
     }
@@ -98,29 +116,31 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const { data, error } = await supabase.auth.verifyOtp({
-        phone,
+        email,
         token: otp.trim(),
-        type: 'sms',
+        type: 'email',
       })
       if (error) {
-        setError(error.message)
+        setError(error.message && error.message !== '{}' ? error.message : 'Invalid or expired code. Resend and try again.')
       } else if (data.user) {
-        // Ensure profile row exists with name + phone (trigger usually does this).
+        // Ensure profile row exists with name + email + phone (trigger usually does this).
+        const e164 = phone.startsWith('+') ? phone : toE164(phone)
         await supabase.from('profiles').upsert(
           {
             id: data.user.id,
+            email,
             full_name:
               fullName.trim() ||
               (data.user.user_metadata as any)?.full_name ||
-              phone,
-            phone,
+              email.split('@')[0],
+            phone: e164,
           },
           { onConflict: 'id' }
         )
         navigate(from, { replace: true })
       }
     } catch (err: any) {
-      setError(err?.message ?? 'Verification failed. Try again.')
+      setError(err?.message && err.message !== '{}' ? err.message : 'Verification failed. Try again.')
     } finally {
       setLoading(false)
     }
@@ -180,7 +200,7 @@ export default function LoginPage() {
             <div>
               <p className="text-sm font-bold text-gray-900">AISE360 PVT LTD</p>
               <p className="text-xs text-gray-500">
-                {step === 'phone' ? 'Enter name + mobile to get OTP' : 'Enter the OTP'}
+                {step === 'details' ? 'Enter name + email to get OTP' : 'Enter the OTP'}
               </p>
             </div>
           </div>
@@ -192,14 +212,14 @@ export default function LoginPage() {
             <div className="bg-green-50 text-green-700 px-4 py-3 rounded-lg text-sm mb-4">{info}</div>
           )}
 
-          {step === 'phone' ? (
+          {step === 'details' ? (
             <form onSubmit={sendOtp} className="space-y-4">
               <div>
                 <label className="label">Your Name</label>
                 <input
                   type="text"
                   className="input"
-                  placeholder="e.g. Jitendra Sharma"
+                  placeholder="e.g. Sufiyaan"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
@@ -207,19 +227,34 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label className="label">Mobile Number</label>
+                <label className="label">Email</label>
+                <input
+                  type="email"
+                  className="input"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  inputMode="email"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  The 6-digit OTP arrives by email.
+                </p>
+              </div>
+              <div>
+                <label className="label">Mobile Number (optional)</label>
                 <input
                   type="tel"
                   className="input"
                   placeholder="10-digit mobile or +9198XXXXXXXX"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  required
                   autoComplete="tel"
                   inputMode="tel"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Indian numbers auto-format to +91. OTP arrives by SMS.
+                  Saved to your profile. SMS OTP activates once a sender is added.
                 </p>
               </div>
               <button type="submit" className="btn-primary w-full" disabled={loading}>
@@ -229,7 +264,7 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={verifyOtp} className="space-y-4">
               <div>
-                <label className="label">OTP sent to {phone}</label>
+                <label className="label">OTP sent to {email}</label>
                 <input
                   type="text"
                   className="input text-center text-2xl tracking-[0.5em]"
@@ -249,13 +284,13 @@ export default function LoginPage() {
                   type="button"
                   className="text-gray-500 hover:underline"
                   onClick={() => {
-                    setStep('phone')
+                    setStep('details')
                     setOtp('')
                     setError('')
                     setInfo('')
                   }}
                 >
-                  ← Change number
+                  ← Change details
                 </button>
                 <button
                   type="button"

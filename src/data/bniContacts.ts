@@ -10,7 +10,7 @@ export interface BNIContactSeed {
 }
 
 // Default meets list. New meets can be added from the UI (stored in localStorage).
-export const DEFAULT_MEETS: string[] = ['BNI Meet']
+export const DEFAULT_MEETS: string[] = ['BNI Meet', 'BNI Maestros - Pune East']
 
 export const BNI_TEAMS: { id: number; name: string; color: string }[] = [
   { id: 1, name: 'Power Team 1', color: 'bg-blue-100 text-blue-700 border-blue-200' },
@@ -130,4 +130,22 @@ export const BNI_CONTACTS_SEED: BNIContactSeed[] = [
   c('Mr. Shubham Chawaria', 'Aradhana Photography & Films', 'emmanuel.shubham@gmail.com', '8600513459', 6),
   c('Mr. Rohit Shinde', 'Sunstone Organic Farms Pvt. Ltd.', 'sunstoneorganic1@gmail.com', '7888000628', 6),
   c('Mr. Murli Nair', 'Marvel Corporation', 'marvelinfo14@gmail.com', '9545926010', 6),
+  // ── BNI MAESTROS - PUNE EAST REGION (17) — added Oct 2026 ──
+  c('Amitkumar Deshpande', 'Corporate Lawyer - Avlegal Counsel', 'amit@avlegalcounsel.com', '9673998804', 1, 'BNI Maestros - Pune East'),
+  c('Ali Asghar', 'Video Graphy - The Tall Guy Studio', 'thetallguystudio@gmail.com', '8104153525', 1, 'BNI Maestros - Pune East'),
+  c('Anilkumar Shimpi', 'General Insurance', 'anil.shimpl@gmail.com', '9595104617', 1, 'BNI Maestros - Pune East'),
+  c('Anis Shaikh', 'Interior Designer (Residential) - Inmax', 'inmax_id@yahoo.com', '9822257979', 2, 'BNI Maestros - Pune East'),
+  c('Anshul Sharma', 'Education Services', 'anshulbsharma@gmail.com', '9822047796', 2, 'BNI Maestros - Pune East'),
+  c('Chetan Firodiya', 'Virtual CFO Accounting', 'chetanfirodiya@gmail.com', '9860772323', 2, 'BNI Maestros - Pune East'),
+  c('Gaurav Ajotikar', 'Real Estate Consultant (Residential)', 'ajotikar@gmail.com', '9607712338', 3, 'BNI Maestros - Pune East'),
+  c('Hasan Kothari', 'Architect (Residential) - AR Kitects', 'info.arkitects@gmail.com', '9730821348', 3, 'BNI Maestros - Pune East'),
+  c('Husain Rangwala', 'Dentist - Dr Husain', 'drhusainr@gmail.com', '8446382553', 3, 'BNI Maestros - Pune East'),
+  c('Jay Desai', 'Portfolio Management Services - Arje Investment', 'arjeinvestment@gmail.com', '9638381414', 4, 'BNI Maestros - Pune East'),
+  c('Madhavi Shelar', 'Travel & Tourism - Traav Expert', 'madhavi@traavexpert.com', '7843081635', 4, 'BNI Maestros - Pune East'),
+  c('Nandan Gumaste', 'Mutual Funds', 'ngumaste1@yahoo.com', '9422010153', 4, 'BNI Maestros - Pune East'),
+  c('Padmaja Naidu', 'Life Insurance', 'padmajatnaidu10@gmail.com', '7350809185', 5, 'BNI Maestros - Pune East'),
+  c('Prakash Ariyarajan', 'Events - Dream Factory Events', 'info@dreamfactoryevents.co', '8446611477', 5, 'BNI Maestros - Pune East'),
+  c('Prashantt Kulkarni', 'Numerologist', 'prashant2k1@gmail.com', '9769962646', 5, 'BNI Maestros - Pune East'),
+  c('Rachana Deshpande', 'Digital Marketing - AR Consulting', 'rachana@arconsulting.co.in', '7020772578', 6, 'BNI Maestros - Pune East'),
+  c('Shubham Barkade', 'Labor Law', 'shubhambarkade.ils@gmail.com', '8237665856', 6, 'BNI Maestros - Pune East'),
 ]

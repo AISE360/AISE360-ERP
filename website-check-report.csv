@@ -1,0 +1,101 @@
+idx,full_name,email,company,website,works,status,final_url,error
+1,Uday Chennuru,uchennuru@ashwaaengineering.com,Ashwaa Engineering Pvt. Ltd,https://www.ashwaaengineering.com,True,200,https://www.ashwaaengineering.com/,
+2,Prakash Arumugam,prakash.a@klap6.com,Klap6,https://www.klap6.com,True,200,https://www.klap6.com/,
+3,Rahul Tulsiyani,rahult@encircletechnologies.com,Encircle Technologies Private Limited,https://www.encircletechnologies.com,True,200,https://encircletechnologies.com/,
+4,Raj Kalla,raj@synco.co.in,Synco Industries Ltd.,https://www.syncoceramics.com,True,200,https://www.syncoceramics.com/,
+5,Sierra Jones,sierra@ladingcargo.com,Lading Logistics,https://www.ladingcargo.com,True,200,https://ladingcargo.com/,ssl-fallback-ok
+6,Abhishek Johri,abhishek@violetink.com,Violet Ink Group,https://www.violetink.com,True,200,https://www.violetink.com/,
+7,Arjun Bhandari,arjun@dizercorp.com,Dizer Corp,https://www.dizercorp.com,True,200,https://dizercorp.com/,
+8,Tyler Hartsough,tylerh@pwiworks.com,Pwi,https://www.pwiworks.com,True,200,https://pwiworks.com/,
+9,Anil Antony,anil@pulseframestudio.com,,,False,,,no website
+10,Shreya Bhatt,shreya.bhatt@techneplus.com,Techneplus,https://www.techneplus.com,True,200,https://www.techneplus.com/,
+11,Desh Raj,raj@eternitylogistics.co,Eternity Logistics Solutions Pvt Ltd,https://www.eternitylogistics.co,True,200,https://www.eternitylogistics.co/,
+12,Richa Garg,richa.garg@bplogix.com,Bp Logix,https://www.bplogix.com,True,200,https://www.bplogix.com/,
+13,Manoj Mahto,manoj@mahtogroup.com,Mahto Group,https://www.mahtogroup.com,True,200,https://mahtogroup.com/,
+14,Manoj K,manoj.k@sagatianz.com,Sagatianz Inc,https://www.sagatianz.com,True,200,https://www.sagatianz.com/,
+15,Shivam Kundariya,shivam@evvolution.com,Evvolution,https://www.evvolution.com,True,200,https://www.evvolution.com/,
+16,Vikesh Gangaputra,vikesh@rpatechnologyinc.com,Rpa Technology Inc,https://www.rpatechnologyinc.com,True,200,https://rpatechnologyinc.com/,
+17,Akhilesh Mishra,akhilesh.mishra@siroclinpharm.com,Siro,https://www.siroclinpharm.com,True,200,https://www.siroclinpharm.com/,
+18,Akhilesh Kumar,akhilesh@weidops.com,Weidops Solutions,https://www.weidops.com,True,200,https://www.weidops.com/,
+19,Chandrashekar Premkumar,chandrashekar.premkumar@inoptra.com,Inoptra Digital,https://www.inoptra.com,True,200,https://inoptra.com/,
+20,Sukriti Shankar,sukriti@trailblazerit.com,Trail Blazer Consulting Llc,https://www.trailblazerit.com,True,200,https://www.trailblazerit.com/,
+21,Chandresh Chudasama,chandresh@caddraftingservices.in,Chudasama Outsourcing Pvt. Ltd. (copl),https://www.caddraftingservices.in,True,200,https://caddraftingservices.in/,
+22,Ruchira Priyadarshini,ruchira.priyadarshini@althire.ai,Althire Ai,https://www.althire.ai,False,,,"ssl/error: HTTPSConnectionPool(host='www.althire.ai', port=443): Max retries exceeded with url: / (Caused by SSLError(SSLError(1, '"
+23,Richin Varghese,richin.varghese@triassicsolutions.com,Triassic Solutions,https://www.triassicsolutions.com,True,200,https://www.triassicsolutions.com/,
+24,Jigneshkumar Patel,jigneshkumar.patel@essar.com,Essar,https://www.essar.com,False,,,"ssl/error: HTTPSConnectionPool(host='www.essar.com', port=443): Max retries exceeded with url: / (Caused by SSLError(SSLCertVerific"
+25,Amoli Thakur,amoli@exarcainc.com,1 Point System Llc,https://www.1pointsys.com,True,200,https://www.1pointsys.com/,
+26,Puneet,puneet@hypeit.network,Hypeit,https://www.hypeit.network,False,,,"HTTPSConnectionPool(host='www.hypeit.network', port=443): Max retries exceeded with url: / (Caused by NewConnectionError(""HTTPSConnection(host='www.hy"
+27,Harish Mundakode,,Myridius,,False,,,no website
+28,Bristin Appukuttan,,Codeboard Technology,https://www.codeboardtech.com,True,200,https://codeboardtech.com/,
+29,Abhijith Pola,kabhijith@empyra.com,Empyra,https://www.empyra.com,True,200,https://www.empyra.com/,
+30,Kishore Chandu,kishorec@lgltechnologies.com,Lgl Technologies,https://www.lgltechnologies.com,True,200,https://www.lgltechnologies.com/,
+31,Naveen Kumar,naveen.j.kumar@dell.com,Goldtouch,https://www.goldtouch.com,True,200,https://www.goldtouch.com/,
+32,Monika Kadamalla,monika.kadamalla@esolutionsfirst.com,Esolutionsfirst,https://www.esolutionsfirst.com,False,403,https://www.esolutionsfirst.com/,http 403
+33,Deepak Kumar,deepak@zarantech.com,Zarantech,https://www.zarantech.com,True,200,https://www.zarantech.com/,
+34,Ashwin Prashant,ashwin.prashant@ayna.ai,Ayna.ai,https://www.ayna.ai,True,200,https://www.ayna.ai/,
+35,Nitin Singhal,nitin.singhal@apolisrises.com,"Rjt Compuquest, Inc.",,False,,,no website
+36,Prateek Kaushik,prateek@successsparrow.co,Success Sparrow Consultancy,https://www.successsparrow.co,True,200,https://successsparrow.co,
+37,Ashu Tyagi,,Ptr Global,https://www.ptrglobal.com,True,200,https://www.ptrglobal.com/,
+38,Keith Koshy,kk@dynamisch.co,Dynamisch,https://www.dynamisch.co,True,200,https://dynamisch.co/,
+39,Ankit Sharma,,Futuriste Digimedia,https://www.futuristedigimedia.com,True,200,https://futuristedigimedia.com/,
+40,Rahul Jha,rahul.j@firstconnecthealth.com,First Connect Health,https://www.firstconnecthealth.com,True,200,https://firstconnecthealth.com/,
+41,Udit Aggarwal,udit@eblsec.com,Ebullient Securities,https://www.ebullientsecurities.com,True,200,https://www.ebullientsecurities.com/,
+42,Mahendra Choudhary,mahendra@delight.chat,Delightchat,https://www.delightchat.io,True,200,https://www.delightchat.io/,
+43,Manoj Prasad,manoj@espercare.com,Predigle,https://www.predigle.com,True,200,https://www.predigle.com/,
+44,Vidya Ramesh,vidya@infonextech.com,Infonex Technologies,https://www.infonextech.com,True,200,https://www.infonextech.com/,
+45,Mahesh Kumbhar,mkumbhar@qualityze.com,Qualityze Inc,https://www.qualityze.com,True,200,https://www.qualityze.com/,
+46,Rahul Sharma,rahul@optiq.ai,Optiq.ai,https://www.optiq.ai,True,200,https://www.matters.ai:443/,
+47,Ankit Kumar,ankit.kumar@theomnistar.com,Omnistarr,https://www.omnistarr.com,True,200,https://omnistarr.com/,
+48,Gaurav Gupta,gauravgp@amazon.com,Amazon Web Services,,False,,,no website
+49,Arindam Roy,arindam.roy@sparity.com,Sparity,https://www.sparity.com,True,200,https://www.sparity.com/,
+50,Abhay Gupta,abhay@assaptr.com,Assaptr,https://www.assaptr.com,True,200,https://assaptr.com/,
+51,Harshit Kr,harshitkr@airslide.in,Airslide,https://www.airslide.in,True,200,https://airslide.in/,
+52,Sid Goel,sid@heetherconsulting.co,"Heether Consulting Inc. - Your Global One-stop Shop For Sourcing, Scouting & Development Needs!",https://www.heetherconsulting.co,True,200,https://heetherconsulting.co/,
+53,Lovish Gulati,lovish@duogeeks.com,Duogeeks,https://www.duogeeks.com,True,200,https://duogeeks.com,
+54,Casey Ricardo,cricardo@mickeyslinen.com,Mickey's Linen,https://www.mickeyslinen.com,True,200,https://www.mickeyslinen.com/,
+55,Archie M,archie@knostic.ai,Knostic,https://www.knostic.ai,True,200,https://www.knostic.ai/,
+56,Clinton Hopkins,chopkins@gttit.com,"Global Technical Talent, An Inc. 5000 Company",https://www.gttit.com,True,200,https://gttit.com/,
+57,Soumya Singhal,soumya@haqcrc.org,Her Haq,,False,,,no website
+58,Jude Jacob,jude@flentis.com,,,False,,,no website
+59,Sushant Gupta,sushant@strongtower.consulting,Strong Tower Consulting,https://www.strongtower.consulting,True,200,https://www.strongtower.consulting/,
+60,Shivam Shankhdhar,shivam.s@inficaretech.com,Inficare Staffing,https://www.inficarehealth.com,False,403,https://www.inficarehealth.com/,http 403
+61,Akriti Agarwal,akriti@thebullseye.in,Thebullseye,https://www.thebullseye.in,True,200,https://thebullseye.in/,
+62,Moulika Mandapaka,moulika.m@tekwissen.com,Tekwissen India,,False,,,no website
+63,Sai Kumar,saikumar@intellibee.com,Intellibee Inc,https://www.intellibee.com,True,200,https://www.intellibee.com/,
+64,Abdul Khan,feroz@codesizzler.info,Codesizzler India | Uae - Microsoft Certified Solution Partner,https://www.codesizzler.in,True,200,https://www.codesizzler.in/,
+65,Ashish Shinde,,Solace Infotech Private Limited,https://www.solaceinfotech.com,True,200,https://solaceinfotech.com/,
+66,Kinneri Vyas,kvyas@omnimd.com,Omnimd,https://www.omnimd.com,True,200,https://omnimd.com/,
+67,Sachin Mishra,sachin@protonshub.com,Protonshub Technologies -a Cmmi Level 5 Company,https://www.protonshub.com,True,200,https://www.protonshub.com/,
+68,Vishad Jain,true.vishad@psiborg.in,Psiborg Technologies,https://www.psiborg.in,True,200,https://psiborg.in/,
+69,Tushar Singla,tushar@outflo.io,,,False,,,no website
+70,Vamsee Somu,vamsee.somu@elevancesystems.com,R4solutions Inc,https://www.r4solutionsinc.com,True,200,https://www.r4solutionsinc.com/,
+71,Harish Nanjundaswamy,harish@fueladream.com,Fueladream,https://www.fueladream.com,True,200,https://www.fueladream.com/,
+72,Ashwin Sivakumar,ashwin@cyngn.com,Cyngn,https://www.cyngn.com,True,200,https://www.cyngn.com/,
+73,Brototi Sengupta,brototi.sengupta@neoaccel.com,Neoaccel,,False,,,no website
+74,Yuvaraj Anbu,yuvaraja@hrpundits.com,Hr Pundits Inc,https://www.hrpundits.com,True,200,https://www.hrpundits.com/,
+75,Sreekanth Lapala,sreekanth.lapala@ctrlaltnow.com,Punch It Technologies,https://www.ctrlaltnow.com,True,200,https://ctrlaltnow.com/,
+76,Deepa Kashyap,,Human Resources Professional,,False,,,no website
+77,Mahesh Pagilla,mahesh@ssatechinc.com,Ssa Tech Inc,https://www.ssatechinc.com,True,200,https://ssatechinc.com/,
+78,Raviraj Hegde,raj@donorbox.org,Donorbox,https://www.donorbox.org,True,200,https://donorbox.org/,
+79,Harjeet Kakkar,harjeet@vhire4u.com,Vhire4u,https://www.vhire4u.com,True,200,https://www.vhire4u.com/,
+80,Pranay Jain,pranay@drawmet.com,Drawmet Wires Pvt. Ltd.,https://www.drawmet.com,False,,,"HTTPSConnectionPool(host='www.drawmet.com', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='www.draw"
+81,Ritik Gupta,victor.ross@expertmarketresearch.com,Claight Corporation (expert Market Research),https://www.expertmarketresearch.com,True,200,https://www.expertmarketresearch.com/,
+82,Gaurav Agrawal,gaurav@strattek.in,Strattek Consulting,https://www.strattek.in,True,200,https://strattek.in/wp-content/cache/all/index.html,
+83,Mark Mastroianni,mark.mastroianni@e-gineering.com,E-gineering Inc.,https://www.e-gineering.com,True,200,https://www.e-gineering.com/,
+84,Abhishek Dadhichi,abhishek@pssgway.com,Passageway Tech Pvt Ltd.,https://www.pssgway.com,True,200,https://www.pssgway.com/,
+85,Robbin Arora,robbin@deed.so,Deed,https://www.deed.so,True,200,https://www.deed.so/,
+86,Manohar G,manohar@skytechinfinite.com,Skytech Infinite Platform Pvt. Ltd - India,https://www.skytechinfinite.com,True,200,https://skytechinfinite.com/,
+87,Tejashri Patil,tejashri.patil@destiel.org,Destiel,https://www.destiel.org,True,200,https://destiel.org/,
+88,Nilesh Purohit,nilesh@ansihealthtech.com,,,False,,,no website
+89,Arikara Rajan,arikara.rajan@ippopay.com,,,False,,,no website
+90,Suresh Padam,suresh.padam@yottatechports.com,Yotta Tech Ports Inc,https://www.yottatechports.com,True,200,https://www.yottatechports.com/,
+91,Venkatesh Chennu,venkatesh.ch@logisofttechinc.com,Logisoft Technologies Inc.,https://www.logisofttechinc.com,True,200,https://logisofttechinc.com/,
+92,Manish Munshi,munshim@amazon.com,Amazon Web Services,,False,,,no website
+93,Umakanth G,umakanth@misoftservices.com,Misoft Services,https://www.misoftservices.com,True,200,https://www.misoftservices.com/,
+94,Aastha Narang,anarang@binding-minds.com,Binding Minds Inc. (certified Disability Owned Business Enterprise),https://www.binding-minds.com,True,200,https://www.binding-minds.com/,
+95,Amit Ghodgaonkar,,Ansys Software Private Limited,https://www.ansysindia.com,False,,,"HTTPSConnectionPool(host='www.ansysindia.com', port=443): Max retries exceeded with url: / (Caused by NameResolutionError(""HTTPSConnection(host='www.a"
+96,Gaurav Bhagat,gaurav.bhagat@aptossolar.com,Aptos Solar Technology,https://www.aptossolar.com,True,200,https://www.aptossolar.com/,
+97,Lakshmi Prabhu,lakshmi.prabhu@scdprobiotics.com,"Scd Probiotics, Llc",https://www.scdprobiotics.com,True,200,https://www.scdprobiotics.com/,
+98,Dishank Bhatt,dishank@rockersinfo.com,Rockers Technology,https://www.rockersinfo.com,True,200,https://www.rockersinfo.com/,
+99,Kirti Dhingra,kirtidhingra@steady-rabbit.com,Steady Rabbit,https://www.steadyrabbit.in,True,200,https://www.steadyrabbit.in/,
+100,Sougata Das,sougata.das5@cognizant.com,,,False,,,no website

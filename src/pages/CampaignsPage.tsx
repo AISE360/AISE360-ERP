@@ -147,9 +147,10 @@ export default function CampaignsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: clients }, { data: leads }] = await Promise.all([
+      const [{ data: clients }, { data: leads }, { data: netRows }] = await Promise.all([
         supabase.from('clients').select('company_name, contact_person, email'),
         supabase.from('leads').select('company_name, contact_person, email'),
+        supabase.from('bni_contacts').select('name, company_name, email, power_team, meet_name').limit(2000),
       ])
       const list: AudienceMember[] = []
       const push = (m: AudienceMember) => {
@@ -162,10 +163,21 @@ export default function CampaignsPage() {
         key: '', name: c.contact_person || c.company_name, email: c.email || '',
         company: c.company_name, source: 'Clients',
       }))
+      // Seed contacts (includes BNI Maestros - Pune East) — show meet name for filtering
       BNI_CONTACTS_SEED.forEach((c) => push({
         key: '', name: c.name, email: c.email || '',
-        company: `${c.company} (Power Team ${c.team})`, source: 'Networking',
+        company: `${c.company} (${c.meet ?? 'BNI Meet'} - Group ${c.team})`, source: 'Networking',
       }))
+      // Live networking table (if user ran supabase-bni-*.sql) — dedupe vs seed by email
+      const seedEmails = new Set(BNI_CONTACTS_SEED.map((c) => (c.email || '').toLowerCase()))
+      ;(netRows ?? []).forEach((r: any) => {
+        const em = (r.email || '').toLowerCase()
+        if (!em || seedEmails.has(em)) return
+        push({
+          key: '', name: r.name || r.company_name, email: r.email || '',
+          company: `${r.company_name ?? ''} (${r.meet_name ?? 'BNI Meet'} - Group ${r.power_team ?? 1})`, source: 'Networking',
+        })
+      })
       ;(leads ?? []).forEach((l: any) => push({
         key: '', name: l.contact_person || l.company_name, email: l.email || '',
         company: l.company_name, source: 'Leads',

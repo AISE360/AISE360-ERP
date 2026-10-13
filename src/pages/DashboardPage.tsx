@@ -4,16 +4,16 @@ import { supabase } from '@/lib/supabase'
 import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils'
 import {
   FolderKanban, DollarSign, Clock, CheckCircle,
-  TrendingUp, AlertCircle, Activity
+  TrendingUp, Activity
 } from 'lucide-react'
-import type { Project, DailyLog, Profile, Task } from '@/types'
+import type { Project, DailyLog, Profile, FollowUp } from '@/types'
 import { useIsPrivileged } from '@/store/authStore'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [todayLogs, setTodayLogs] = useState<(DailyLog & { founder: Profile })[]>([])
-  const [pendingTasks, setPendingTasks] = useState<Task[]>([])
+  const [expiring, setExpiring] = useState<FollowUp[]>([])
   const [founders, setFounders] = useState<Profile[]>([])
   const [financials, setFinancials] = useState<{
     revenue: number
@@ -32,7 +32,7 @@ export default function DashboardPage() {
       const [
         { data: proj },
         { data: logs },
-        { data: tasks },
+        { data: fu },
         { data: team },
         { data: fe },
         { data: ce },
@@ -40,7 +40,7 @@ export default function DashboardPage() {
       ] = await Promise.all([
         supabase.from('projects').select('*').order('created_at', { ascending: false }),
         supabase.from('daily_logs').select('*, founder:profiles(*)').eq('date', today),
-        supabase.from('tasks').select('*').in('status', ['todo', 'in-progress']).order('due_date'),
+        supabase.from('follow_ups').select('*').eq('is_done', false).order('expiry_date', { ascending: true, nullsFirst: false }).order('due_date').limit(6),
         supabase.from('profiles').select('*').eq('is_active', true),
         supabase.from('financial_entries').select('*'),
         supabase.from('company_expenses').select('*'),
@@ -48,7 +48,7 @@ export default function DashboardPage() {
       ])
       setProjects(proj ?? [])
       setTodayLogs((logs as any) ?? [])
-      setPendingTasks(tasks ?? [])
+      setExpiring((fu as any) ?? [])
       setFounders(team ?? [])
       setIdeasCount(ideasTotal ?? 0)
 
@@ -218,25 +218,35 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Pending Tasks */}
+        {/* Expiring Soon (follow-ups closest to expiry) */}
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-yellow-500" />
-              <h2 className="font-semibold text-gray-900">Pending Tasks</h2>
+              <Clock className="w-4 h-4 text-orange-500" />
+              <h2 className="font-semibold text-gray-900">Expiring Soon</h2>
             </div>
-            <Link to="/tasks" className="text-xs text-brand-600 hover:underline">View all</Link>
+            <Link to="/follow-ups" className="text-xs text-brand-600 hover:underline">View all</Link>
           </div>
           <div className="space-y-2">
-            {pendingTasks.slice(0, 6).map(task => (
-              <div key={task.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
-                <p className="text-sm text-gray-800 truncate flex-1">{task.title}</p>
-                <span className={`badge ml-2 ${getStatusColor(task.status)}`}>
-                  {task.status}
-                </span>
-              </div>
-            ))}
-            {pendingTasks.length === 0 && <p className="text-sm text-gray-400">All caught up! 🎉</p>}
+            {expiring.map(fu => {
+              const exp = fu.expiry_date ?? fu.due_date
+              const days = Math.round((new Date(exp).setHours(0, 0, 0, 0) - new Date(today).setHours(0, 0, 0, 0)) / 86400000)
+              const badge = days < 0
+                ? <span className="badge ml-2 bg-red-100 text-red-700">{Math.abs(days)}d overdue</span>
+                : days <= 30
+                  ? <span className="badge ml-2 bg-orange-100 text-orange-700">in {days}d</span>
+                  : <span className="badge ml-2 bg-gray-100 text-gray-500">in {days}d</span>
+              return (
+                <Link key={fu.id} to="/follow-ups" className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-gray-800 truncate">{fu.title}</p>
+                    <p className="text-xs text-gray-500">Expires {formatDate(exp)}</p>
+                  </div>
+                  {badge}
+                </Link>
+              )
+            })}
+            {expiring.length === 0 && <p className="text-sm text-gray-400">Nothing expiring 🎉</p>}
           </div>
         </div>
       </div>

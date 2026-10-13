@@ -100,6 +100,12 @@ export interface FollowUp {
   title: string
   description?: string
   due_date: string
+  expiry_date?: string | null
+  client_email?: string | null
+  client_name?: string | null
+  auto_remind?: boolean
+  last_reminded_at?: string | null
+  remind_count?: number
   assigned_to?: string
   assigned_user?: Profile
   is_done: boolean

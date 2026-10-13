@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
+import { getPresence } from '@/lib/presence'
 import { UserCheck } from 'lucide-react'
 import type { Profile, DailyLog, Task } from '@/types'
 
@@ -49,19 +50,29 @@ export default function TeamPage() {
           const totalHoursWeek = memberLogs.reduce((s, l) => s + l.hours, 0)
           const activeTasks = tasks.filter(t => t.assignee_id === member.id)
           const daysActive = new Set(memberLogs.map(l => l.date)).size
+          const presence = getPresence(member.last_seen_at)
 
           return (
             <div key={member.id} className="card p-5">
               <div className="flex items-start gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-brand-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
-                  {member.full_name.slice(0, 2).toUpperCase()}
+                <div className="relative shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-brand-600 flex items-center justify-center text-white font-bold text-lg">
+                    {member.full_name.slice(0, 2).toUpperCase()}
+                  </div>
+                  <span
+                    title={presence.label}
+                    className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${presence.online ? 'bg-green-500' : 'bg-gray-300'}`}
+                  />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900">{member.full_name}</h3>
                   <p className="text-sm text-gray-500">{member.phone ?? member.email}</p>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <span className={`badge text-xs ${todayLog ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                       {todayLog ? '✓ Active today' : '○ No log today'}
+                    </span>
+                    <span className={`badge text-xs ${presence.online ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      {presence.online ? '● Online now' : presence.label}
                     </span>
                   </div>
                 </div>

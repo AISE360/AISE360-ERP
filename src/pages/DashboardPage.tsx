@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { formatCurrency, formatDate, getStatusColor } from '@/lib/utils'
+import { getPresence } from '@/lib/presence'
 import {
   FolderKanban, DollarSign, Clock, CheckCircle,
   TrendingUp, Activity
@@ -163,10 +164,17 @@ export default function DashboardPage() {
             {founders.map(founder => {
               const isLogged = loggedFounderIds.has(founder.id)
               const log = todayLogs.find(l => l.founder_id === founder.id)
+              const presence = getPresence(founder.last_seen_at)
               return (
                 <div key={founder.id} className="flex items-start gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${isLogged ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                    {founder.full_name.slice(0, 2).toUpperCase()}
+                  <div className="relative shrink-0">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isLogged ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      {founder.full_name.slice(0, 2).toUpperCase()}
+                    </div>
+                    <span
+                      title={presence.label}
+                      className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${presence.online ? 'bg-green-500' : 'bg-gray-300'}`}
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -175,6 +183,9 @@ export default function DashboardPage() {
                         {isLogged ? 'Active' : 'No log'}
                       </span>
                     </div>
+                    <p className={`text-[11px] mt-0.5 ${presence.online ? 'text-green-600 font-medium' : 'text-gray-400'}`}>
+                      {presence.online ? '● Online now' : presence.label}
+                    </p>
                     {log && <p className="text-xs text-gray-500 truncate mt-0.5">{log.description}</p>}
                   </div>
                 </div>

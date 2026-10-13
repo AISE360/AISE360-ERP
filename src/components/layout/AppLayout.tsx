@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import { usePresenceHeartbeat } from '@/hooks/usePresenceHeartbeat'
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  usePresenceHeartbeat()
 
   return (
     <div className="flex h-screen overflow-hidden bg-cream">
